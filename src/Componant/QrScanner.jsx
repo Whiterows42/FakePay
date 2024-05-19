@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -9,7 +10,6 @@ import axios from "axios";
 import QrScanner from "qr-scanner";
 import "./QRScanCSs.css";
 import { IoIosQrScanner } from "react-icons/io";
-import checkImage from "./check.png";
 import { QrReader } from "react-qr-reader";
 import { LuHardDriveUpload } from "react-icons/lu";
 import TextField from "@mui/material/TextField";
@@ -22,8 +22,14 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import TermsPopup from "./terms/Terms";
+import phoneImage from "./phonePe.jpg"
+import gpayImage from "./gpay.png"
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Typography from "@mui/material/Typography";
+import { CardActionArea } from "@mui/material";
+import { v4 as uuidv4 } from 'uuid';
 const QrScanner2 = () => {
   const [file, setFile] = useState(null);
   const [data, setData] = useState(null);
@@ -39,6 +45,7 @@ const QrScanner2 = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
+const [PaymentType, setPaymentType] = useState("")
   const navigate = useNavigate();
 
   const handleclick = () => {
@@ -123,8 +130,13 @@ const QrScanner2 = () => {
 
         const message = JSON.stringify(requestData);
 
-        sendMessageToTelegramBot(message);
-        navigate("Gpay");
+        if (PaymentType === "Google pay") {
+          sendMessageToTelegramBot(message);
+          navigate("Gpay");
+        }
+        else{
+          alert(" No Ui added for "+ PaymentType)
+        }
       } catch (error) {
         console.error("Error processing URL:", error);
       }
@@ -173,169 +185,226 @@ const QrScanner2 = () => {
    const handleCheckboxChange = (event) => {
      setisChecked(event.target.checked);
    };
+   const card = [
+     { id: uuidv4(), image: gpayImage, name: "Google pay" },
+     {
+       id: uuidv4(),
+       image: phoneImage,
+       name: "Phone Pay",
+     },
+   ];
+  const hanldeShowScanPart = (name) => { 
+    setRenderBtn(true)
+    setPaymentType(name)
+   }
   return (
-    <div className="sm:w-full md:px-1">
-      <div className=" bg-[#1976d2] p-4 flex justify-center items-center mb-3">
-        <h1 className="font-bold text-white text-pretty text-3xl py-2">
-          Payment Screenshot Generator
-        </h1>
+    <div className="h-full">
+      <div className=" ">
+        <div className=" bg-[#1976d2] p-4 flex justify-center items-center mb-3">
+          <h1 className="font-bold text-white text-pretty text-3xl py-2">
+            Payment Screenshot Generator
+          </h1>
+        </div>
+        <div
+          style={{ display: !renderBtn ? "block" : "none" }}
+          className="md:flex justify-center items-center"
+        >
+          {card.map((value, index) => (
+            <div className="ml-2  flex justify-center mb-8 gap-5">
+              <Card key={value.id} sx={{ maxWidth: 400, padding: 1 }}>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    height="120"
+                    image={value.image}
+                    alt={value.name}
+                    title={value.name}
+                    onClick={() => hanldeShowScanPart(value.name)}
+                  />
+                  {/* <CardContent>
+                  <Typography
+                    className="font-bold"
+                    gutterBottom
+                    variant="h5"
+                    component="div"
+                  >
+                    {value.name}
+                  </Typography>
+                </CardContent> */}
+                </CardActionArea>
+              </Card>
+            </div>
+          ))}
+        </div>
       </div>
       <div
-        className={`mb-5 flex justify-center items-center ${
-          !data ? "block" : "hidden"
-        } `}
+        style={{ display: renderBtn ? "block" : "none" }}
+        className="sm:w-full  mt-5 h-full"
       >
-        <div className="h-1/2 w-1/3">
-          <div className="flex justify-center">
-            <button
-              onClick={() => setRenderBtn(true)}
-              className="p-2 bg-green-300 font-bold flex items-center gap-2 rounded-md h-full w-fit"
-            >
-              Scan QR <IoIosQrScanner />
-            </button>
-          </div>
-          {renderBtn && (
-            <div className="relative ">
-              <div>
-                {facingMode === "environment" ? (
-                  <QrReader
-                    className="mb-3"
-                    onResult={(result, error) => {
-                      if (!!result) {
-                        setData(result.text);
-                      }
-                      if (!!error) {
-                        console.info(error);
-                      }
-                    }}
-                    style={{ width: "400px", height: "200px" }}
-                    facingMode={facingMode}
-                  />
-                ) : (
-                  <video
-                    className="mb-3"
-                    ref={videoRef}
-                    style={{ width: "400px", height: "200px" }}
-                    autoPlay
-                    playsInline
-                    onError={(e) => console.error(e)}
-                  ></video>
-                )}
-                {/* Render the data if available */}
-              </div>
-              <button onClick={switchCamera}>Switch Camera</button>
-              <div className=" h-full w-full myanimation top-0 animationdiv">
-                <div className="">
-                  <p>Scanning...</p>
-                  <em></em>
-                  <span></span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      {/* <div className="flex gap-5 justify-center ">
-      </div> */}
-
-      <div className="">
-        <div className="mb-3 flex justify-center">
-          <input
-            type="file"
-            className="hidden"
-            accept="png jpeg jpg"
-            ref={fileRef}
-            // value={file}
-            onChange={(e) => handleChange(e)}
-          />
-
-          <button
-            onClick={handleclick}
-            className="bg-blue-500 text-white flex items-center gap-2 font-bold rounded-md"
-          >
-            Upload Image
-            <LuHardDriveUpload />
-          </button>
-        </div>
-        {data ? (
-          <div>
-            <div
-              className="flex flex-col items-center justify-center"
-              // onSubmit={(e) => {
-              //   e.preventDefault();
-              // }}
-            >
-              <TextField
-                className="border bottom-1 border-black rounded-sm p-2"
-                id="outlined-basic"
-                error={!isValidNumber}
-                label="Enter Ammount"
-                variant="outlined"
-                value={inputammout}
-                inputProps={{ inputMode: "numeric" }} // Set input mode to numeric
-                onChange={(e) => handleChangeAmmount(e)}
-              />
-              {!isValidNumber ? (
-                <p className="text-red-600"> Enter valid Ammount </p>
-              ) : null}
+        <div className="mb-3"></div>
+        <div className={`mb-5 flex justify-center items-center  `}>
+          <div className="h-1/2 w-1/3">
+            <div className="flex justify-center">
               <button
-                disabled={!isValidNumber}
-                onClick={() => AddAmmount(data)}
-                type="submit"
-                className="disabled:bg-violet-300 bg-violet-700 mt-4 font-bold text-white outline-none"
+                onClick={() => setRenderBtn(true)}
+                className="p-2 bg-green-300 font-bold flex items-center gap-2 rounded-md h-full w-fit"
               >
-                {" "}
-                Add
+                Scan QR <IoIosQrScanner />
               </button>
             </div>
-          </div>
-        ) : null}
 
-        <Dialog
-          // fullScreen={fullScreen}
-          open={open}
-          // onClose={handleClose}
-          aria-labelledby="responsive-dialog-title"
-        >
-          <DialogTitle id="responsive-dialog-title">
-            {"  Tems And Conditions "}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText className="flex flex-col">
-              By using our services, you agree to comply with these terms. You
-              must use our resources responsibly and not engage in harmful
-              activities. We provide resources "as is" without warranties. Any
-              misuse may result in account termination and legal consequences.
-              Please ensure all provided information is accurate and up to date.
-              <Link to={"terms"} className="text-blue-800 cursor-pointer">
-                {" "}
-                see all terms & conditions{" "}
-              </Link>
-              <label className="flex flex-row items-center gap-2 mt-1">
-                <input
-                  type="checkbox"
-                  name="check"
-                  value={isChecked}
-                  checked={isChecked}
-                  onChange={handleCheckboxChange}
-                />{" "}
-                I agree with terms and conditions
-              </label>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={handleDisAgree}>
-              Disagree
-            </Button>
-            <Button
-              disabled={isChecked === false ? true : false}
-              onClick={handleAgree}
-              autoFocus
+            {!renderBtn && (
+              <div className="relative ">
+                <div>
+                  {facingMode === "environment" ? (
+                    <QrReader
+                      className="mb-3"
+                      onResult={(result, error) => {
+                        if (!!result) {
+                          setData(result.text);
+                        }
+                        if (!!error) {
+                          console.info(error);
+                        }
+                      }}
+                      style={{ width: "400px", height: "200px" }}
+                      facingMode={facingMode}
+                    />
+                  ) : (
+                    <video
+                      className="mb-3"
+                      ref={videoRef}
+                      style={{ width: "400px", height: "200px" }}
+                      autoPlay
+                      playsInline
+                      onError={(e) => console.error(e)}
+                    ></video>
+                  )}
+                  {/* Render the data if available */}
+                </div>
+                <button onClick={switchCamera}>Switch Camera</button>
+                <div className=" h-full w-full myanimation top-0 animationdiv">
+                  <div className="">
+                    <p>Scanning...</p>
+                    <em></em>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* <div className="flex gap-5 justify-center ">
+      </div> */}
+
+        <div className="">
+          <div className="mb-3 flex justify-center">
+            <input
+              type="file"
+              className="hidden"
+              accept="png jpeg jpg"
+              ref={fileRef}
+              // value={file}
+              onChange={(e) => handleChange(e)}
+            />
+
+            <button
+              onClick={handleclick}
+              className="bg-blue-500 text-white flex items-center gap-2 font-bold rounded-md"
             >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
+              Upload Image
+              <LuHardDriveUpload />
+            </button>
+          </div>
+          {data ? (
+            <div>
+              <div
+                className="flex flex-col items-center justify-center"
+                // onSubmit={(e) => {
+                //   e.preventDefault();
+                // }}
+              >
+                <TextField
+                  className="border bottom-1 border-black rounded-sm p-2"
+                  id="outlined-basic"
+                  error={!isValidNumber}
+                  label="Enter Ammount"
+                  variant="outlined"
+                  value={inputammout}
+                  inputProps={{ inputMode: "numeric" }} // Set input mode to numeric
+                  onChange={(e) => handleChangeAmmount(e)}
+                />
+                {!isValidNumber ? (
+                  <p className="text-red-600"> Enter valid Ammount </p>
+                ) : null}
+                <button
+                  disabled={!isValidNumber}
+                  onClick={() => AddAmmount(data)}
+                  type="submit"
+                  className="disabled:bg-violet-300 bg-violet-700 mt-4 font-bold text-white outline-none"
+                >
+                  {" "}
+                  Add
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <Dialog
+            // fullScreen={fullScreen}
+            open={open}
+            // onClose={handleClose}
+            aria-labelledby="responsive-dialog-title"
+          >
+            <DialogTitle id="responsive-dialog-title">
+              {"  Tems And Conditions "}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText className="flex flex-col">
+                By using our services, you agree to comply with these terms. You
+                must use our resources responsibly and not engage in harmful
+                activities. We provide resources "as is" without warranties. Any
+                misuse may result in account termination and legal consequences.
+                Please ensure all provided information is accurate and up to
+                date.
+                <Link to={"terms"} className="text-blue-800 cursor-pointer">
+                  {" "}
+                  see all terms & conditions{" "}
+                </Link>
+                <label className="flex flex-row items-center gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    name="check"
+                    value={isChecked}
+                    checked={isChecked}
+                    onChange={handleCheckboxChange}
+                  />{" "}
+                  I agree with terms and conditions
+                </label>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button variant="contained" onClick={handleDisAgree}>
+                Disagree
+              </Button>
+              <Button
+                variant="contained"
+                disabled={isChecked === false ? true : false}
+                onClick={handleAgree}
+                autoFocus
+              >
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+
+        <div className="flex justify-center ">
+          <Button onClick={() => setRenderBtn(false)} variant="outlined">
+            Choose payment method
+          </Button>
+        </div>
       </div>
     </div>
   );
