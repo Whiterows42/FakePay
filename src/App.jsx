@@ -12,7 +12,7 @@ function App() {
     <>
       <ResponsiveAppBar />
       <QrScanner2/>
-      <Footer/>
+      
     </>
   );
 }
