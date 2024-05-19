@@ -253,8 +253,7 @@ const [PaymentType, setPaymentType] = useState("")
               </button>
             </div>
 
-            {!renderBtn && (
-              <div className="relative ">
+              {/* <div className="relative ">
                 <div>
                   {facingMode === "environment" ? (
                     <QrReader
@@ -281,7 +280,7 @@ const [PaymentType, setPaymentType] = useState("")
                     ></video>
                   )}
                   {/* Render the data if available */}
-                </div>
+                {/* </div>
                 <button onClick={switchCamera}>Switch Camera</button>
                 <div className=" h-full w-full myanimation top-0 animationdiv">
                   <div className="">
@@ -290,8 +289,7 @@ const [PaymentType, setPaymentType] = useState("")
                     <span></span>
                   </div>
                 </div>
-              </div>
-            )}
+              </div> */} 
           </div>
         </div>
 
