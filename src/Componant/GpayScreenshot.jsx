@@ -15,7 +15,18 @@ const navigate  = useNavigate()
    const handleBack = () => {
      navigate("/");
     };
-    
+     useEffect(() => {
+       const handleContextMenu = (event) => {
+         event.preventDefault();
+       };
+
+       document.addEventListener("contextmenu", handleContextMenu);
+
+       // Cleanup the event listener on component unmount
+       return () => {
+         document.removeEventListener("contextmenu", handleContextMenu);
+       };
+     }, []);
   return (
     <>
       {addData && addData.length > 0 ? (

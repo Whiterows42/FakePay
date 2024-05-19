@@ -197,11 +197,11 @@ const [PaymentType, setPaymentType] = useState("")
        image: phoneImage,
        name: "Phone Pay",
      },
-    //  {
-    //    id: uuidv4(),
-    //    image: payTmImage,
-    //    name: "PayTm",
-    //  },
+     {
+       id: uuidv4(),
+       image: payTmImage,
+       name: "PayTm",
+     },
    ];
   const hanldeShowScanPart = (name) => { 
     setRenderBtn(true)
@@ -220,17 +220,19 @@ const [PaymentType, setPaymentType] = useState("")
         }}
       >
         <div
-          className=" row mt-5 "
+          className=" row m-0 my-1 "
           // style={{
           //   display: !renderBtn ? "block" : "none",
           // }}
         >
           <div className="col-sm-12 col-md-6 p-0">
-            <img className="rounded-md " src={blueVideo} alt="" />
+            <div className="flex justify-center items-center p-2">
+              <img className="rounded-md  " src={blueVideo} alt="" />
+            </div>
           </div>
-
-          <div className={`col-md-6 md:flex justify-center p-0 `}>
-            <div className="row">
+         
+          <div className={`col-md-6 md:flex justify-center p-0 h-1/2 `}>
+            <div className="row m-0 border border-gray-600">
               {card.map((value, index) => (
                 <div className=" col-md-5 flex justify-center mb-6 mt-4   ">
                   <Card
