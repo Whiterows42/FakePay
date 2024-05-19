@@ -26,7 +26,7 @@ import phoneImage from "./phonePe.jpg"
 import gpayImage from "./gpay.png"
 import payTmImage from "./paytm.svg"
 import qrScan from "./ScannerBoy.jpg"
-import blueVideo from "./blueVideo.gif"
+import blueVideo from "./qrScan.jpg"
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -208,7 +208,7 @@ const [PaymentType, setPaymentType] = useState("")
     setPaymentType(name)
    }
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <div className=" bg-[#1976d2] p-4 flex justify-center items-center ">
         <h1 className="font-bold text-white text-pretty text-3xl py-2">
           Payment Screenshot Generator
@@ -219,22 +219,20 @@ const [PaymentType, setPaymentType] = useState("")
           display: !renderBtn ? "block" : "none",
         }}
       >
-        <div 
+        <div
           className=" row mt-5 "
           // style={{
           //   display: !renderBtn ? "block" : "none",
           // }}
         >
-          <div className="col-sm-12 col-md-6">
-            <img className="rounded-md" src={blueVideo} alt="" />
+          <div className="col-sm-12 col-md-6 p-0">
+            <img className="rounded-md " src={blueVideo} alt="" />
           </div>
 
-          <div
-            className={`col-md-6 md:flex justify-center `}
-          >
+          <div className={`col-md-6 md:flex justify-center p-0 `}>
             <div className="row">
               {card.map((value, index) => (
-                <div className=" col-md-5 flex justify-center mb-6 mt-4 ml-3  ">
+                <div className=" col-md-5 flex justify-center mb-6 mt-4   ">
                   <Card
                     key={value.id}
                     sx={{ maxWidth: 500, padding: 1, display: "flex" }}
@@ -270,15 +268,11 @@ const [PaymentType, setPaymentType] = useState("")
       </div>
       <div style={{ display: renderBtn ? "block" : "none" }}>
         <div className="row h-100 w-100 flex justify-center">
-          <div
-            className="  col-md-4 h-25  flex justify-center "
-          >
+          <div className="  col-md-4 h-25  flex justify-center ">
             <img src={qrScan} alt="" style={{ height: "500px" }} />
           </div>
-          <div
-            className={`mb-5 col-md-4 col-sm-12 h-full `}
-          >
-            <div className="flex justify-center p-5  items-center flex-col gap-4" >
+          <div className={`mb-5 col-md-4 col-sm-12 h-full `}>
+            <div className="flex justify-center p-5  items-center flex-col gap-4">
               <div className=" mt-5">
                 <button
                   onClick={() => setRenderBtn(true)}
