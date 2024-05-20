@@ -46,7 +46,7 @@ function ResponsiveAppBar() {
             variant="h6"
             noWrap
             component="a"
-            href="#app-bar-with-responsive-menu"
+            // top={"/"}
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -60,7 +60,7 @@ function ResponsiveAppBar() {
             Fake Pay
           </Typography>
 
-          <Box  sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -104,7 +104,7 @@ function ResponsiveAppBar() {
             variant="h5"
             noWrap
             component="a"
-            href="#app-bar-with-responsive-menu"
+            // top={"/"}
             sx={{
               mr: 2,
               display: { xs: "flex", md: "none" },
@@ -118,8 +118,14 @@ function ResponsiveAppBar() {
           >
             Fack Pay
           </Typography>
-          <Box  sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent:"end" }}>
-            <div style={{display:"flex" , justifyContent:"end"}} >
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+              justifyContent: "end",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "end" }}>
               {pages.map((page) => (
                 <Button
                   key={page}

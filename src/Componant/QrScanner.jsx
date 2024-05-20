@@ -14,7 +14,7 @@ import { QrReader } from "react-qr-reader";
 import { LuHardDriveUpload } from "react-icons/lu";
 import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataGpay } from "../features/CreateSlice";
+import { getDataFromCamera, getDataGpay } from "../features/CreateSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -22,17 +22,17 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import phoneImage from "./phonePe.jpg"
-import gpayImage from "./gpay.png"
-import payTmImage from "./paytm.svg"
-import qrScan from "./ScannerBoy.jpg"
-import blueVideo from "./qrScan.jpg"
+import phoneImage from "./phonePe.jpg";
+import gpayImage from "./gpay.png";
+import payTmImage from "./paytm.svg";
+import qrScan from "./ScannerBoy.jpg";
+import blueVideo from "./qrScan.jpg";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import Footer from "./Footer";
 const QrScanner2 = () => {
@@ -50,19 +50,35 @@ const QrScanner2 = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
-const [PaymentType, setPaymentType] = useState("")
+  const [PaymentType, setPaymentType] = useState("");
   const navigate = useNavigate();
-
+  const Camdata = useSelector((state) => state.data.CamData);
   const handleclick = () => {
     fileRef.current.click();
   };
+  useEffect(() => {
+    if (Camdata) {
+      setData(Camdata);
+      setRenderBtn(true);
+      setPaymentType((prev) => {
+        if (prev) {
+          return prev;
+        } else {
+          const storedPaymentType = localStorage.getItem("paymentType");
+          return storedPaymentType ? JSON.parse(storedPaymentType) : "";
+        }
+      });
+    }
+  }, [Camdata]);
+
+
   const handleChange = async (e) => {
     const file = e.target.files[0];
     setFile(file);
     const result = await QrScanner.scanImage(file);
     // console.log(result);
-
-    setData(result);
+    // setData(result);
+    dispatch(getDataFromCamera(result));
   };
   const getCurrentDateFormatted = () => {
     const currentDate = new Date();
@@ -99,7 +115,13 @@ const [PaymentType, setPaymentType] = useState("")
       console.error("Error sending message:", error);
     }
   };
+
   const AddAmmount = async (upiString) => {
+    if (Camdata) {
+      upiString = Camdata;
+      setRenderBtn(true);
+      setData(true);
+    }
     const checkTrue = upiString.startsWith("upi://pay?");
 
     if (checkTrue) {
@@ -129,6 +151,7 @@ const [PaymentType, setPaymentType] = useState("")
           currentDate: currentDate,
           ammount: exactamt,
           userAgreed: agreed,
+          paymentMethod:PaymentType
         };
 
         dispatch(getDataGpay(requestData));
@@ -136,11 +159,10 @@ const [PaymentType, setPaymentType] = useState("")
         const message = JSON.stringify(requestData);
 
         if (PaymentType === "Google pay") {
-          sendMessageToTelegramBot(message);
           navigate("Gpay");
-        }
-        else{
-          alert(" No Ui added for "+ PaymentType)
+          sendMessageToTelegramBot(message);
+        } else {
+          alert(" No Ui added for " + PaymentType);
         }
       } catch (error) {
         console.error("Error processing URL:", error);
@@ -150,24 +172,6 @@ const [PaymentType, setPaymentType] = useState("")
     }
   };
 
-  const [facingMode, setFacingMode] = useState("environment");
-  const switchCamera = async () => {
-    const constraints = {
-      video: {
-        facingMode: facingMode === "environment" ? "user" : "environment",
-      },
-    };
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setFacingMode(facingMode === "environment" ? "user" : "environment");
-      }
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-    }
-  };
 
   const handleAgree = () => {
     localStorage.setItem("termsAgreed", "true");
@@ -186,27 +190,31 @@ const [PaymentType, setPaymentType] = useState("")
     setOpen(userAgreed === true ? false : true);
   }, []);
 
-  const [isChecked, setisChecked] = useState(false)
-   const handleCheckboxChange = (event) => {
-     setisChecked(event.target.checked);
-   };
-   const card = [
-     { id: uuidv4(), image: gpayImage, name: "Google pay" },
-     {
-       id: uuidv4(),
-       image: phoneImage,
-       name: "Phone Pay",
-     },
-     {
-       id: uuidv4(),
-       image: payTmImage,
-       name: "PayTm",
-     },
-   ];
-  const hanldeShowScanPart = (name) => { 
-    setRenderBtn(true)
-    setPaymentType(name)
-   }
+  const [isChecked, setisChecked] = useState(false);
+  const handleCheckboxChange = (event) => {
+    setisChecked(event.target.checked);
+  };
+  const card = [
+    { id: uuidv4(), image: gpayImage, name: "Google pay" },
+    {
+      id: uuidv4(),
+      image: phoneImage,
+      name: "Phone Pay",
+    },
+    {
+      id: uuidv4(),
+      image: payTmImage,
+      name: "PayTm",
+    },
+  ];
+  const hanldeShowScanPart = (name) => {
+    setRenderBtn(true);
+    setPaymentType(name);
+      localStorage.setItem("paymentType", JSON.stringify(name));;
+  };
+  console.log( "this is", PaymentType);
+
+  
   return (
     <div className="h-full w-full">
       <div className=" bg-[#1976d2] p-4 flex justify-center items-center ">
@@ -230,7 +238,7 @@ const [PaymentType, setPaymentType] = useState("")
               <img className="rounded-md  " src={blueVideo} alt="" />
             </div>
           </div>
-         
+
           <div className={`col-md-6 md:flex justify-center p-0 h-1/2 `}>
             <div className="row m-0 border border-gray-600">
               {card.map((value, index) => (
@@ -238,11 +246,11 @@ const [PaymentType, setPaymentType] = useState("")
                   <Card
                     key={value.id}
                     sx={{ maxWidth: 500, padding: 1, display: "flex" }}
-                    className="flex justify-center items-center  gap-3"
+                    className="flex justify-center items-center Paycard  gap-3"
                   >
                     <CardActionArea>
                       <CardMedia
-                        className="img-fluid"
+                        className="img-fluid  "
                         component="img"
                         height="120"
                         image={value.image}
@@ -251,15 +259,15 @@ const [PaymentType, setPaymentType] = useState("")
                         onClick={() => hanldeShowScanPart(value.name)}
                       />
                       {/* <CardContent>
-                  <Typography
-                    className="font-bold"
-                    gutterBottom
-                    variant="h5"
-                    component="div"
-                  >
-                    {value.name}
-                  </Typography>
-                </CardContent> */}
+                    <Typography
+                      className="font-bold"
+                      gutterBottom
+                      variant="h5"
+                      component="div"
+                    >
+                      {value.name}
+                    </Typography>
+                  </CardContent> */}
                     </CardActionArea>
                   </Card>
                 </div>
@@ -276,12 +284,13 @@ const [PaymentType, setPaymentType] = useState("")
           <div className={`mb-5 col-md-4 col-sm-12 h-full `}>
             <div className="flex justify-center p-5  items-center flex-col gap-4">
               <div className=" mt-5">
-                <button
+                <Link
+                  to={"scan"}
                   onClick={() => setRenderBtn(true)}
                   className="p-2 bg-green-300 font-bold flex items-center gap-2 rounded-md h-full w-fit"
                 >
                   Scan QR <IoIosQrScanner />
-                </button>
+                </Link>
               </div>
 
               <div className="">
@@ -326,7 +335,7 @@ const [PaymentType, setPaymentType] = useState("")
                       ) : null}
                       <button
                         disabled={!isValidNumber}
-                        onClick={() => AddAmmount(data)}
+                        onClick={() => AddAmmount(Camdata)}
                         type="submit"
                         className="disabled:bg-violet-300 bg-violet-700 mt-4 font-bold text-white outline-none"
                       >
@@ -404,7 +413,7 @@ const [PaymentType, setPaymentType] = useState("")
           </div>
 
           {/* <div className="flex gap-5 justify-center ">
-      </div> */}
+        </div> */}
         </div>
       </div>
       {/* <Footer /> */}

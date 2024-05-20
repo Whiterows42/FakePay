@@ -7,6 +7,7 @@ import { store } from './Store.js'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom'
 import GpayScreenshot from './Componant/GpayScreenshot.jsx'
 import TermsPopup from './Componant/terms/Terms.jsx'
+import ScanQrCam from './Componant/ScanCamra/ScanQrCam.jsx'
 
 const route  = createBrowserRouter(
     createRoutesFromElements(
@@ -14,6 +15,7 @@ const route  = createBrowserRouter(
         <Route  path="/" element={<App/>}  />
         <Route path= "Gpay" element={<GpayScreenshot/>} />
         <Route path='terms' element={<TermsPopup/>} />
+        <Route path='scan' element={<ScanQrCam/>} />
         </>
     )
 )

@@ -1,37 +1,89 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import checkImage from "./check.png";
 import { useSelector } from "react-redux";
 import "./QRScanCSs.css";
 import { IoShareSocial } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import html2canvas from "html2canvas";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
 const Gpay = () => {
   const data = useSelector((state) => state.data.data);
-const navigate  = useNavigate()
- 
-  const [addData, setAddData] = useState([])
+  const navigate = useNavigate();
+
+  const [message, setMessage] = useState("")
+  const [addData, setAddData] = useState([]);
+     const screenshotRef = useRef(null);
   useEffect(() => {
-  setAddData(data)
-  }, [])
-   const handleBack = () => {
-     navigate("/");
+    setAddData(data);
+  }, []);
+  const handleBack = () => {
+    navigate("/");
+  };
+  useEffect(() => {
+    const handleContextMenu = (event) => {
+      event.preventDefault();
     };
-     useEffect(() => {
-       const handleContextMenu = (event) => {
-         event.preventDefault();
-       };
 
-       document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("contextmenu", handleContextMenu);
 
-       // Cleanup the event listener on component unmount
-       return () => {
-         document.removeEventListener("contextmenu", handleContextMenu);
-       };
-     }, []);
+    // Cleanup the event listener on component unmount
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+   const [open, setOpen] = React.useState(false);
+
+   const handleClick = () => {
+     setOpen(true);
+   };
+
+   const handleClose = (event, reason) => {
+     if (reason === "clickaway") {
+       return;
+     }
+
+     setOpen(false);
+   };
+  const captureScreenshot = async () => {
+    try {
+      const canvas = await html2canvas(screenshotRef.current);
+      const dataUrl = canvas.toDataURL("image/png");
+      const blob = await fetch(dataUrl).then((res) => res.blob());
+      const file = new File([blob], "screenshot.png", { type: blob.type });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: "Screenshot",
+          text: "Check out this screenshot",
+          files: [file],
+        });
+        setMessage("Screenshot shared successfully!");
+      } else {
+        setOpen(true)
+        setMessage("Your browser does not support the Web Share API");
+      }
+    } catch (error) {
+      console.error("Error sharing screenshot:", error);
+      alert("Failed to share screenshot");
+    }
+    finally{
+      setOpen(true);
+       setMessage("Screenshot shared successfully!");
+    }
+  };
+  const audioRef = useRef(null);
+
   return (
-    <>
+    <div>
+    
       {addData && addData.length > 0 ? (
         addData.map((value, index) => (
-          <div className="main printable rounded-md mt-2" key={index}>
+          <div
+            ref={screenshotRef}
+            className="main printable rounded-md mt-2"
+            key={index}
+          >
             <div className="content">
               <div className="">
                 <div className="flex justify-center items-center">
@@ -64,25 +116,37 @@ const navigate  = useNavigate()
             </div>
             <div className="done fixed bottom-7">
               <div className="flex gap-4">
-                <button className="text-blue-700 flex items-center gap-2 rounded-full px-6">
-                  {" "}
-                  <IoShareSocial /> Share screenshot{" "}
+                <button
+                  onClick={captureScreenshot}
+                  className=" bg-black h-12 text-white border-2 border-white flex items-center gap-2 rounded-full px-6"
+                >
+                  <IoShareSocial /> Share screenshot
                 </button>
                 <button
                   onClick={handleBack}
-                  className="text-white rounded-full px-6 cursor-pointer bg-blue-700"
+                  className="text-white h-12 flex items-center rounded-full px-6 cursor-pointer bg-blue-700"
                 >
                   {" "}
                   Close{" "}
                 </button>
               </div>
             </div>
+
+            <div style={{ display: open ? "block" : "none" }}>
+              <Snackbar
+                open={open}
+                autoHideDuration={5000}
+                onClose={handleClose}
+                message={message}
+              />
+            </div>
           </div>
         ))
       ) : (
         <p>No transactions available</p>
       )}
-    </>
+      {/* <button onClick={captureScreenshot}>Share Screenshot</button> */}
+    </div>
   );
 };
 
