@@ -7,19 +7,24 @@ import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
+import notificationSound from "./google_pay.mp3"; // Import the audio file
+
 const Gpay = () => {
   const data = useSelector((state) => state.data.data);
   const navigate = useNavigate();
 
-  const [message, setMessage] = useState("")
+  const [message, setMessage] = useState("");
   const [addData, setAddData] = useState([]);
-     const screenshotRef = useRef(null);
-  useEffect(() => {
-    setAddData(data);
-  }, []);
+  const screenshotRef = useRef(null);
+  const audioRef = useRef(null);
+  
   const handleBack = () => {
     navigate("/");
   };
+  useEffect(() => {
+    setAddData(data);
+  }, [data]);
+
   useEffect(() => {
     const handleContextMenu = (event) => {
       event.preventDefault();
@@ -32,19 +37,27 @@ const Gpay = () => {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
   }, []);
-   const [open, setOpen] = React.useState(false);
 
-   const handleClick = () => {
-     setOpen(true);
-   };
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+  }, []); // Play audio when the component mounts
 
-   const handleClose = (event, reason) => {
-     if (reason === "clickaway") {
-       return;
-     }
+  const [open, setOpen] = useState(false);
 
-     setOpen(false);
-   };
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
+
   const captureScreenshot = async () => {
     try {
       const canvas = await html2canvas(screenshotRef.current);
@@ -60,23 +73,20 @@ const Gpay = () => {
         });
         setMessage("Screenshot shared successfully!");
       } else {
-        setOpen(true)
+        setOpen(true);
         setMessage("Your browser does not support the Web Share API");
       }
     } catch (error) {
       console.error("Error sharing screenshot:", error);
       alert("Failed to share screenshot");
-    }
-    finally{
+    } finally {
       setOpen(true);
-       setMessage("Screenshot shared successfully!");
+      setMessage("Screenshot shared successfully!");
     }
   };
-  const audioRef = useRef(null);
 
   return (
     <div>
-    
       {addData && addData.length > 0 ? (
         addData.map((value, index) => (
           <div
@@ -132,7 +142,7 @@ const Gpay = () => {
               </div>
             </div>
 
-            <div style={{ display: open ? "block" : "none" }}>
+            <div style={{ display: !open ? "block" : "none" }}>
               <Snackbar
                 open={open}
                 autoHideDuration={5000}
@@ -145,7 +155,12 @@ const Gpay = () => {
       ) : (
         <p>No transactions available</p>
       )}
-      {/* <button onClick={captureScreenshot}>Share Screenshot</button> */}
+      <audio
+        ref={audioRef}
+        src={notificationSound}
+        style={{ display: "none" }}
+        autoPlay
+      />
     </div>
   );
 };

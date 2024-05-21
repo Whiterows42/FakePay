@@ -212,7 +212,6 @@ const QrScanner2 = () => {
     setPaymentType(name);
       localStorage.setItem("paymentType", JSON.stringify(name));;
   };
-  console.log( "this is", PaymentType);
 
   
   return (

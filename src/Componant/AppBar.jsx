@@ -116,7 +116,7 @@ function ResponsiveAppBar() {
               textDecoration: "none",
             }}
           >
-            Fack Pay
+            Fake Pay
           </Typography>
           <Box
             sx={{
