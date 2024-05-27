@@ -159,8 +159,8 @@ const QrScanner2 = () => {
         const message = JSON.stringify(requestData);
 
         if (PaymentType === "Google pay") {
-          navigate("Gpay");
-          sendMessageToTelegramBot(message);
+          navigate("underDevlopment");
+          // sendMessageToTelegramBot(message);
         } else {
           alert(" No Ui added for " + PaymentType);
         }
@@ -201,11 +201,6 @@ const QrScanner2 = () => {
       image: phoneImage,
       name: "Phone Pay",
     },
-    {
-      id: uuidv4(),
-      image: payTmImage,
-      name: "PayTm",
-    },
   ];
   const hanldeShowScanPart = (name) => {
     setRenderBtn(true);
@@ -216,11 +211,11 @@ const QrScanner2 = () => {
   
   return (
     <div className="h-full w-full">
-      <div className=" bg-[#1976d2] p-4 flex justify-center items-center ">
+      {/* <div className=" bg-[#1976d2] p-4 flex justify-center items-center ">
         <h1 className="font-bold text-white text-pretty text-3xl py-2">
           Payment Screenshot Generator
         </h1>
-      </div>
+      </div> */}
       <div
         style={{
           display: !renderBtn ? "block" : "none",
@@ -232,16 +227,16 @@ const QrScanner2 = () => {
           //   display: !renderBtn ? "block" : "none",
           // }}
         >
-          <div className="col-sm-12 col-md-6 p-0">
-            <div className="flex justify-center items-center p-2">
+          <div className="col-sm-12 col-md-12 p-0">
+            {/* <div className="flex justify-center items-center p-2">
               <img className="rounded-md  " src={blueVideo} alt="" />
-            </div>
+            </div> */}
           </div>
 
-          <div className={`col-md-6 md:flex justify-center p-0 h-1/2 `}>
-            <div className="row m-0 border border-gray-600">
+          <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
+            <div className="row m-0 flex justify-center border border-gray-600">
               {card.map((value, index) => (
-                <div className=" col-md-5 flex justify-center mb-6 mt-4   ">
+                <div className=" col-md-3 flex justify-center mb-6 mt-4   ">
                   <Card
                     key={value.id}
                     sx={{ maxWidth: 500, padding: 1, display: "flex" }}
@@ -249,7 +244,7 @@ const QrScanner2 = () => {
                   >
                     <CardActionArea>
                       <CardMedia
-                        className="img-fluid  "
+                        className="img-fluid  w-full "
                         component="img"
                         height="120"
                         image={value.image}
@@ -314,20 +309,43 @@ const QrScanner2 = () => {
                 {data ? (
                   <div>
                     <div
-                      className="flex flex-col items-center justify-center"
+                      className="flex flex-col items-center text-white justify-center"
                       // onSubmit={(e) => {
                       //   e.preventDefault();
                       // }}
                     >
                       <TextField
-                        className="border bottom-1 border-black rounded-sm "
+                        className="rounded-sm"
                         id="outlined-basic"
                         error={!isValidNumber}
-                        label="Enter Ammount"
+                        label="Enter Amount"
                         variant="outlined"
                         value={inputammout}
-                        inputProps={{ inputMode: "numeric" }} // Set input mode to numeric
+                        inputProps={{ inputMode: "numeric" }}
                         onChange={(e) => handleChangeAmmount(e)}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "& fieldset": {
+                              borderColor: "white",
+                            },
+                            "&:hover fieldset": {
+                              borderColor: "white",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "white",
+                            },
+                            color: "white",
+                          },
+                          "& .MuiInputBase-input": {
+                            color: "white", // Input text color
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "white", // Label color
+                          },
+                          "& .MuiInputLabel-root.Mui-focused": {
+                            color: "white",
+                          },
+                        }}
                       />
                       {!isValidNumber ? (
                         <p className="text-red-600"> Enter valid Ammount </p>

@@ -8,14 +8,16 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import GpayScreenshot from './Componant/GpayScreenshot.jsx'
 import TermsPopup from './Componant/terms/Terms.jsx'
 import ScanQrCam from './Componant/ScanCamra/ScanQrCam.jsx'
+import UnderDevlopment from './Componant/Message/UnderDevlopment.jsx'
 
 const route  = createBrowserRouter(
     createRoutesFromElements(
         <>
         <Route  path="/" element={<App/>}  />
-        <Route path= "Gpay" element={<GpayScreenshot/>} />
+        {/* <Route path= "Gpay" element={<GpayScreenshot/>} /> */}
         <Route path='terms' element={<TermsPopup/>} />
         <Route path='scan' element={<ScanQrCam/>} />
+        <Route path='underDevlopment' element={<UnderDevlopment/>} />
         </>
     )
 )

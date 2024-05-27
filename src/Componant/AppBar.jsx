@@ -36,7 +36,7 @@ function ResponsiveAppBar() {
   };
 
   return (
-    <AppBar position="sticky">
+    <AppBar style={{background:"black"}}  position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <CurrencyRupeeIcon
