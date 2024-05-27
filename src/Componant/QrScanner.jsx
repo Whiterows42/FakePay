@@ -35,6 +35,7 @@ import { CardActionArea } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 
 import Footer from "./Footer";
+import AdComponent from "./Google Add/AddSense";
 const QrScanner2 = () => {
   const [file, setFile] = useState(null);
   const [data, setData] = useState(null);
@@ -232,7 +233,7 @@ const QrScanner2 = () => {
               <img className="rounded-md  " src={blueVideo} alt="" />
             </div> */}
           </div>
-
+         <AdComponent/>
           <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
             <div className="row m-0 flex justify-center border border-gray-600">
               {card.map((value, index) => (
