@@ -233,7 +233,7 @@ const QrScanner2 = () => {
               <img className="rounded-md  " src={blueVideo} alt="" />
             </div> */}
           </div>
-         <AdComponent/>
+          <AdComponent />
           <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
             <div className="row m-0 flex justify-center border border-gray-600">
               {card.map((value, index) => (
@@ -434,6 +434,14 @@ const QrScanner2 = () => {
         </div> */}
         </div>
       </div>
+      <ins
+        className="adsbygoogle"
+        style={{display:"block"}}
+        data-ad-format="fluid"
+        data-ad-layout-key="-gw-3+1f-3d+2z"
+        data-ad-client="ca-pub-7565338492649119"
+        data-ad-slot="6719679682"
+      ></ins>
       {/* <Footer /> */}
     </div>
   );
