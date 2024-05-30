@@ -31,11 +31,13 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { CardActionArea } from "@mui/material";
+import { Box, CardActionArea, Slide, Snackbar } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
-
-import Footer from "./Footer";
+import Cookies from "js-cookie";
 import AdComponent from "./Google Add/AddSense";
+function SlideTransition(props) {
+  return <Slide {...props} direction="up" />;
+}
 const QrScanner2 = () => {
   const [file, setFile] = useState(null);
   const [data, setData] = useState(null);
@@ -53,10 +55,18 @@ const QrScanner2 = () => {
   const [agreed, setAgreed] = useState(false);
   const [PaymentType, setPaymentType] = useState("");
   const navigate = useNavigate();
+  const userDetails = useSelector((state) => state.data.userDetails);
   const Camdata = useSelector((state) => state.data.CamData);
   const handleclick = () => {
     fileRef.current.click();
   };
+  useEffect(() => {
+   const token = Cookies.get("token");
+   if (!token) {
+    navigate("/")
+   }
+  }, [])
+  
   useEffect(() => {
     if (Camdata) {
       setData(Camdata);
@@ -71,8 +81,24 @@ const QrScanner2 = () => {
       });
     }
   }, [Camdata]);
-
-
+  const Credentialmsg = useSelector((state) => state.data.userCredentialsMsg);
+  const [userLogMsg, setUserLogMsg] = useState({
+    success:false,
+    message:" "
+  })
+  useEffect(() => {
+    if (Credentialmsg) {
+      
+      setUserLogMsg(Credentialmsg)
+    }
+  }, [Credentialmsg])
+  
+ const handleCloseSnackbar = () => {
+setUserLogMsg({
+  success:false,
+  message:" "
+})
+ };
   const handleChange = async (e) => {
     const file = e.target.files[0];
     setFile(file);
@@ -160,8 +186,8 @@ const QrScanner2 = () => {
         const message = JSON.stringify(requestData);
 
         if (PaymentType === "Google pay") {
-          navigate("underDevlopment");
-          // sendMessageToTelegramBot(message);
+          navigate("/Gpay");
+          sendMessageToTelegramBot(message);
         } else {
           alert(" No Ui added for " + PaymentType);
         }
@@ -209,7 +235,7 @@ const QrScanner2 = () => {
       localStorage.setItem("paymentType", JSON.stringify(name));;
   };
 
-  
+  console.log("us", userDetails);
   return (
     <div className="h-full w-full">
       {/* <div className=" bg-[#1976d2] p-4 flex justify-center items-center ">
@@ -234,6 +260,7 @@ const QrScanner2 = () => {
             </div> */}
           </div>
           <AdComponent />
+
           <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
             <div className="row m-0 flex justify-center border border-gray-600">
               {card.map((value, index) => (
@@ -280,7 +307,7 @@ const QrScanner2 = () => {
             <div className="flex justify-center p-5  items-center flex-col gap-4">
               <div className=" mt-5">
                 <Link
-                  to={"scan"}
+                  to={"/scan"}
                   onClick={() => setRenderBtn(true)}
                   className="p-2 bg-green-300 font-bold flex items-center gap-2 rounded-md h-full w-fit"
                 >
@@ -394,7 +421,7 @@ const QrScanner2 = () => {
                       termination and legal consequences. Please ensure all
                       provided information is accurate and up to date.
                       <Link
-                        to={"terms"}
+                        to={"/terms"}
                         className="text-blue-800 cursor-pointer"
                       >
                         {" "}
@@ -436,13 +463,23 @@ const QrScanner2 = () => {
       </div>
       <ins
         className="adsbygoogle"
-        style={{display:"block"}}
+        style={{ display: "block" }}
         data-ad-format="fluid"
         data-ad-layout-key="-gw-3+1f-3d+2z"
         data-ad-client="ca-pub-7565338492649119"
         data-ad-slot="6719679682"
       ></ins>
       {/* <Footer /> */}
+      <Box sx={{ width: 500, position: "absolute" }}>
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={userLogMsg.success}
+          message={userLogMsg.message}
+          autoHideDuration={3000}
+          TransitionComponent={SlideTransition}
+          onClose={handleCloseSnackbar}
+        />
+      </Box>
     </div>
   );
 };

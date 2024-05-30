@@ -14,7 +14,7 @@ const navigate = useNavigate()
   };
   const handleAgree = () => { 
      localStorage.setItem("termsAgreed", "true");
-    navigate("/")
+    navigate("/home");
    }
 
   return (
