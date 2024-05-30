@@ -19,7 +19,7 @@ const Gpay = () => {
   const audioRef = useRef(null);
   
   const handleBack = () => {
-    navigate("/");
+    navigate("/home");
   };
   useEffect(() => {
     setAddData(data);
