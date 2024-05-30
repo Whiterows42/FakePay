@@ -59,6 +59,7 @@ function OtpInput({ length = 6, onOtpSubmit = () => {}, reset }) {
       {otp.map((value, index) => (
         <input
           type="text"
+          inputMode="numeric"
           key={index}
           ref={(input) => (inputRefs.current[index] = input)}
           value={value}

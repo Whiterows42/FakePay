@@ -41,14 +41,14 @@ const ScanQrCam = () => {
     qrScannerRef.current.stop();
     dispatch(getDataFromCamera(qrData));
     console.log(Camdata);
-    navigate("/");
+    navigate("/home");
   }
 useEffect(() => {
   const id = setTimeout(() => {
     qrScannerRef.current.stop();
     dispatch(getDataFromCamera(qrData));
     console.log(Camdata);
-    navigate("/");
+    navigate("/home");
   }, 10000);
 
   return () => {
