@@ -176,7 +176,7 @@ const Signup = () => {
                   <h1 className="tracking-wider">User Signup</h1>
                 </div>
                 <div className="row">
-                  <div className="col-sm-12 col-md-6">
+                  <div className="col-sm-12 mb-2 col-md-6">
                     {renderTextField(
                       "firstName",
                       "First Name",
@@ -185,7 +185,7 @@ const Signup = () => {
                     )}
                   </div>
 
-                  <div className="col-sm-12 col-md-6">
+                  <div className="col-sm-12 mt-2 col-md-6">
                     {renderTextField(
                       "lastName",
                       "Last Name",
@@ -209,7 +209,7 @@ const Signup = () => {
                 )}
 
                 <div className="row">
-                  <div className="col-sm-12 col-md-6">
+                  <div className="col-sm-12 mb-2 col-md-6">
                     {renderTextField(
                       "password",
                       "Password",
@@ -217,7 +217,7 @@ const Signup = () => {
                       <FaLock style={{ color: "white" }} />
                     )}
                   </div>
-                  <div className="col-sm-12 col-md-6">
+                  <div className="col-sm-12 mt-2 col-md-6">
                     {renderTextField(
                       "confirmPassword",
                       "Confirm Password",

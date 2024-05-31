@@ -15,6 +15,7 @@ import {
   Slide,
   Snackbar,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import { FaLock } from "react-icons/fa";
 import { MdMarkEmailRead } from "react-icons/md";
@@ -37,6 +38,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetOtp, setResetOtp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [timer, setTimer] = useState(0);
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -51,11 +55,20 @@ const Login = () => {
         }
       };
       verifyToken();
-    }
-    else{
-      navigate("/")
+    } else {
+      navigate("/");
     }
   }, [navigate, dispatch]);
+
+  useEffect(() => {
+    let countdown;
+    if (otpSent && timer > 0) {
+      countdown = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    }
+    return () => clearInterval(countdown);
+  }, [otpSent, timer]);
 
   const handleCloseSnackbar = () => {
     setOpen(false);
@@ -79,6 +92,7 @@ const Login = () => {
   });
 
   const onSubmit = async (values, { setSubmitting, setFieldError }) => {
+    setLoading(true);
     if (!otpSent) {
       try {
         const response = await LoginApi(values.email, values.password);
@@ -88,6 +102,7 @@ const Login = () => {
           setOtpSent(true);
           setEmail(values.email);
           setPassword(values.password);
+          setTimer(60); 
         } else {
           setFieldError("email", response.data.message || "An error occurred");
           setMessage(response.data.message);
@@ -97,6 +112,7 @@ const Login = () => {
         setFieldError("email", error.message || "An error occurred");
       } finally {
         setSubmitting(false);
+        setLoading(false);
       }
     } else {
       try {
@@ -117,23 +133,32 @@ const Login = () => {
         setFieldError("otp", error.message || "An error occurred");
       } finally {
         setSubmitting(false);
+        setLoading(false);
       }
     }
   };
 
   const resendOtp = async (resetForm) => {
+    setResendLoading(true);
     if (email && password) {
-      const response = await LoginApi(email, password);
-      if (response && response.status === 200) {
-        setMessage("OTP resent successfully");
+      try {
+        const response = await LoginApi(email, password);
+        if (response && response.status === 200) {
+          setMessage("OTP resent successfully");
+          setOpen(true);
+          resetForm();
+          setResetOtp(true);
+          setTimeout(() => setResetOtp(false), 100); // Reset the OTP component
+          setTimer(60); // Reset the timer to 2 minutes
+        } else {
+          setMessage(response.data.message || "Failed to resend OTP");
+          setOpen(true);
+        }
+      } catch (error) {
+        setMessage(error.message || "An error occurred");
         setOpen(true);
-        resetForm();
-        // setOtpSent(false);
-        setResetOtp(true);
-        setTimeout(() => setResetOtp(false), 100); // Reset the OTP component
-      } else {
-        setMessage(response.data.message || "Failed to resend OTP");
-        setOpen(true);
+      } finally {
+        setResendLoading(false);
       }
     }
   };
@@ -155,7 +180,7 @@ const Login = () => {
         validationSchema={validationSchema}
         onSubmit={onSubmit}
       >
-        {({ isSubmitting, isValid, resetForm }) => (
+        {({ isSubmitting, isValid, resetForm, errors }) => (
           <Form className="flex justify-center flex-col gap-3 border p-10 rounded-lg border-white md:w-1/2">
             <div className="text-white">
               <div className="flex mb-3 justify-center text-xl font-bold">
@@ -177,7 +202,7 @@ const Login = () => {
                         variant="outlined"
                         required
                         error={meta.touched && Boolean(meta.error)}
-                        helperText={meta.touched && meta.error}
+                        helperText={meta.touched && errors.email}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -278,48 +303,55 @@ const Login = () => {
                 </>
               )}
               {otpSent && (
-                <div className=" flex justify-center flex-col">
-                  <OtpInput
-                    length={6}
-                    onOtpSubmit={handleOtpSubmit}
-                    reset={resetOtp}
-                  />
-                  <h1
-                    className="text-white font-bold cursor-pointer text-center"
-                    onClick={() => resendOtp(resetForm)}
-                  >
-                    {isSubmitting ? "Resending..." : "Resend OTP"}
-                  </h1>
-                </div>
+                <OtpInput resetOtp={resetOtp} onOtpSubmit={handleOtpSubmit} />
               )}
             </div>
-            {!otpSent && (
-              <button
-                type="submit"
-                className="bg-white text-black font-bold py-2 rounded-lg"
-                disabled={!isValid || isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Login"}
-              </button>
-            )}
+            <Box
+              sx={{
+                position: "relative",
+                display: "flex",
+                justifyContent: "center",
+                marginTop: 2,
+              }}
+            >
+              {loading ? (
+                <button className=" bg-white text-black py-2 px-4 rounded">
+                  <CircularProgress size={24} color="inherit" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className=" bg-white text-black py-2 px-4 rounded"
+                  disabled={isSubmitting || !isValid}
+                >
+                  {otpSent ? "Verify OTP" : "Login"}
+                </button>
+              )}
+              {otpSent && (
+                <button
+                  type="button"
+                  className="bg-blue-500 text-white py-2 px-4 rounded ml-4"
+                  onClick={() => resendOtp(resetForm)}
+                  disabled={resendLoading || timer > 0}
+                >
+                  {resendLoading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    `Resend OTP ${timer > 0 ? `(${timer}s)` : ""}`
+                  )}
+                </button>
+              )}
+            </Box>
           </Form>
         )}
       </Formik>
-
-      <div className="flex mt-4 justify-center items-center gap-2">
-        <h1 className="text-white">Don't have an account?</h1>
-        <button onClick={() => navigate("/signup")}>REGISTER HERE</button>
-      </div>
-      <Box sx={{ background: "white", width: 500, position: "absolute" }}>
-        <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          open={open}
-          message={message}
-          autoHideDuration={3000}
-          TransitionComponent={SlideTransition}
-          onClose={handleCloseSnackbar}
-        />
-      </Box>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        TransitionComponent={SlideTransition}
+        message={message}
+      />
     </div>
   );
 };
