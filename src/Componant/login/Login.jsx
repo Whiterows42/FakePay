@@ -345,7 +345,12 @@ const Login = () => {
           </Form>
         )}
       </Formik>
+      <div className="flex mt-4 justify-center items-center gap-2">
+        <h1 className="text-white">Don't have an account?</h1>
+        <button onClick={() => navigate("/signup")}>REGISTER HERE</button>
+      </div>
       <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
