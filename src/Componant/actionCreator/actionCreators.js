@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-// const domainUrl = "https://server-taupe-seven-11.vercel.app";
-const domainUrl = "http://localhost:3000";
+const domainUrl = "https://server-taupe-seven-11.vercel.app";
+// const domainUrl = "http://localhost:3000";
 export const LoginApi = async (email, password) => {
   try {
     const response = await axios.post(domainUrl + "/api/auth/login", {
