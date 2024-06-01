@@ -1,0 +1,21 @@
+.otp-input-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.otp-input {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.otp-input.error {
+  border: 2px solid red;
+}
+
+.error-text {
+  color: red;
+  font-size: 12px;
+}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-function OtpInput({ length = 6, onOtpSubmit = () => {}, reset }) {
+function OtpInput({ length = 6, onOtpSubmit = () => {}, reset, error , helperText }) {
   const [otp, setOtp] = useState(new Array(length).fill(""));
   const inputRefs = useRef([]);
 
@@ -66,9 +66,12 @@ function OtpInput({ length = 6, onOtpSubmit = () => {}, reset }) {
           onChange={(e) => handleChange(index, e)}
           onClick={() => handleClick(index)}
           onKeyDown={(e) => handleKeyDown(index, e)}
-          className="OtpInput w-10 ml-3 text-black cursor-text text-2xl font-bold text-center flex justify-center items-center h-[55px]"
+          className={`OtpInput w-10 ml-3 text-black cursor-text text-2xl font-bold text-center flex justify-center items-center h-[55px] ${
+            error ? "border-red-500 border-2" : ""
+          }`}
         />
       ))}
+      {/* {error && <div className="error-text">{helperText}</div>} */}
     </div>
   );
 }

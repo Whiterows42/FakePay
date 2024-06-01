@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import {
@@ -12,7 +12,6 @@ import {
   Box,
   IconButton,
   InputAdornment,
-  Slide,
   Snackbar,
   TextField,
   CircularProgress,
@@ -23,10 +22,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import OtpInput from "./OtpInput";
 import Cookies from "js-cookie";
-
-function SlideTransition(props) {
-  return <Slide {...props} direction="up" />;
-}
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -41,6 +36,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [otpError, setOtpError] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -91,50 +87,76 @@ const Login = () => {
     }),
   });
 
-  const onSubmit = async (values, { setSubmitting, setFieldError }) => {
+  const onSubmit = (values, { setSubmitting, setFieldError }) => {
     setLoading(true);
     if (!otpSent) {
-      try {
-        const response = await LoginApi(values.email, values.password);
-        setMessage(response.data.message);
-        setOpen(true);
-        if (response && response.status === 200) {
-          setOtpSent(true);
-          setEmail(values.email);
-          setPassword(values.password);
-          setTimer(60); 
-        } else {
-          setFieldError("email", response.data.message || "An error occurred");
+      LoginApi(values.email, values.password)
+        .then((response) => {
           setMessage(response.data.message);
+          if (response.status === 200) {
+            setOpen(true);
+            setOtpSent(true);
+            setEmail(values.email);
+            setPassword(values.password);
+            setTimer(60);
+          } else {
+            setFieldError(
+              "email",
+              response.data.message || "An error occurred"
+            );
+            setMessage(response.data.message || "Something went wrong");
+            setOpen(true);
+          }
+        })
+        .catch((error) => {
+          console.log("Error response:", error.response);
+          setFieldError(
+            "email",
+            error.response?.data?.message || "An error occurred"
+          );
+          setMessage(error.response?.data?.message || error.message);
           setOpen(true);
-        }
-      } catch (error) {
-        setFieldError("email", error.message || "An error occurred");
-      } finally {
-        setSubmitting(false);
-        setLoading(false);
-      }
+        })
+        .finally(() => {
+          setSubmitting(false);
+          setLoading(false);
+        });
     } else {
-      try {
-        const response = await VerifyOtpApi(email, values.otp);
-        setMessage(response.data.message);
-        if (response && response.status === 200) {
-          Cookies.set("token", response.data.token, { expires: 1 });
-          setOpen(true);
-          navigate("/home");
-          const userData = await fetchUserData();
-          dispatch(getFetchUserData(userData));
-        } else {
-          setFieldError("otp", response.data.message || "Invalid OTP");
+      VerifyOtpApi(email, values.otp)
+        .then((response) => {
+          console.log("Success response:", response);
           setMessage(response.data.message);
+          if (response.status === 200) {
+            setOpen(true);
+            Cookies.set("token", response.data.token, { expires: 1 });
+            navigate("/home");
+            return fetchUserData();
+          } else {
+            setOtpError(true);
+            setFieldError("otp", response.data.message || "Invalid OTP");
+            setMessage(response.data.message);
+            setOpen(true);
+          }
+        })
+        .then((userData) => {
+          if (userData) {
+            dispatch(getFetchUserData(userData));
+          }
+        })
+        .catch((error) => {
+          console.log("Error response:", error.response);
+          setOtpError(true);
+          setFieldError(
+            "otp",
+            error.response?.data?.message || "An error occurred"
+          );
+          setMessage(error.response?.data?.message || error.message);
           setOpen(true);
-        }
-      } catch (error) {
-        setFieldError("otp", error.message || "An error occurred");
-      } finally {
-        setSubmitting(false);
-        setLoading(false);
-      }
+        })
+        .finally(() => {
+          setSubmitting(false);
+          setLoading(false);
+        });
     }
   };
 
@@ -170,7 +192,13 @@ const Login = () => {
   };
 
   const handleOtpSubmit = (otp) => {
-    onSubmit({ otp }, { setFieldError: () => {}, setSubmitting: () => {} });
+    onSubmit(
+      { otp },
+      {
+        setFieldError: (field, message) => {},
+        setSubmitting: (isSubmitting) => {},
+      }
+    );
   };
 
   return (
@@ -180,7 +208,7 @@ const Login = () => {
         validationSchema={validationSchema}
         onSubmit={onSubmit}
       >
-        {({ isSubmitting, isValid, resetForm, errors }) => (
+        {({ isSubmitting, isValid, resetForm, errors, touched }) => (
           <Form className="flex justify-center flex-col gap-3 border p-10 rounded-lg border-white md:w-1/2">
             <div className="text-white">
               <div className="flex mb-3 justify-center text-xl font-bold">
@@ -303,7 +331,21 @@ const Login = () => {
                 </>
               )}
               {otpSent && (
-                <OtpInput resetOtp={resetOtp} onOtpSubmit={handleOtpSubmit} />
+                <Field name="otp">
+                  {({ field, form }) => (
+                    <OtpInput
+                      {...field}
+                      error={errors.otp}
+                      touched={touched.otp}
+                      helperText={touched && errors.otp ? errors.otp : ""}
+                      resetOtp={resetOtp}
+                      onOtpSubmit={(otp) => {
+                        form.setFieldValue("otp", otp, true);
+                        handleOtpSubmit(otp);
+                      }}
+                    />
+                  )}
+                </Field>
               )}
             </div>
             <Box
@@ -354,8 +396,7 @@ const Login = () => {
         open={open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        TransitionComponent={SlideTransition}
-        message={message}
+        message={message ? message : "Something went wrong"}
       />
     </div>
   );

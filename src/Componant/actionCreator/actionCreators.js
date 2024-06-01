@@ -8,6 +8,7 @@ export const LoginApi = async (email, password) => {
       email,
       password,
     });
+    console.log("tsss",response);
     return response; // Return the response so it can be used in the component
   } catch (err) {
     console.log(err);
