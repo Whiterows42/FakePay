@@ -6,8 +6,9 @@ import {
   LoginApi,
   VerifyOtpApi,
   fetchUserData,
+  getUserDetails,
 } from "../actionCreator/actionCreators";
-import { getFetchUserData } from "../../features/CreateSlice";
+import { getFetchUserData, setUserEmail } from "../../features/CreateSlice";
 import {
   Box,
   IconButton,
@@ -38,23 +39,15 @@ const Login = () => {
   const [timer, setTimer] = useState(0);
   const [otpError, setOtpError] = useState(false);
 
+ 
   useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      const verifyToken = async () => {
-        try {
-          const userData = await fetchUserData();
-          dispatch(getFetchUserData(userData));
-          navigate("/home");
-        } catch (error) {
-          console.error("Token verification failed:", error);
-        }
-      };
-      verifyToken();
-    } else {
-      navigate("/");
-    }
-  }, [navigate, dispatch]);
+     const getemail = localStorage.getItem("userEmail");
+     if (getemail) {
+      navigate("/home")
+      setMessage("user logged in successfully")
+     }
+  }, [])
+  
 
   useEffect(() => {
     let countdown;
@@ -99,6 +92,7 @@ const Login = () => {
             setEmail(values.email);
             setPassword(values.password);
             setTimer(60);
+            localStorage.setItem("userEmail", values.email); // Store user email in localStorage
           } else {
             setFieldError(
               "email",
@@ -136,11 +130,6 @@ const Login = () => {
             setFieldError("otp", response.data.message || "Invalid OTP");
             setMessage(response.data.message);
             setOpen(true);
-          }
-        })
-        .then((userData) => {
-          if (userData) {
-            dispatch(getFetchUserData(userData));
           }
         })
         .catch((error) => {

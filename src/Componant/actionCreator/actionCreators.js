@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 const domainUrl = "https://server-taupe-seven-11.vercel.app";
-
+// const domainUrl = "http://localhost:3000";
 export const LoginApi = async (email, password) => {
   try {
     const response = await axios.post(domainUrl + "/api/auth/login", {
@@ -18,7 +18,7 @@ export const LoginApi = async (email, password) => {
 
 export const CheckUserApi = async (email) => {
   try {
-    const response = await axios.post(domainUrl + "/api/check-user", {
+    const response = await axios.post(domainUrl + "/api/auth/check-user", {
       email,
     });
     return response;
@@ -62,7 +62,7 @@ export const VerifyOtpApi = async (email, otp) => {
     return null;
   }
 };
-export const fetchUserData = async () => {
+export const fetchUserData = async ( token) => {
   try {
     const token = Cookies.get("token");
     if (!token) {
@@ -92,5 +92,18 @@ export const fetchUserData = async () => {
       console.error("Error message:", error.message);
     }
     throw error;
+  }
+};
+
+export const getUserDetails = async (email) => {
+  try {
+    const response = await axios.post(domainUrl + "/api/auth/userdetails", {
+      email,
+    });
+
+    return response.data; // Return the user details from the response
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    return null; // Return null or handle the error appropriately
   }
 };

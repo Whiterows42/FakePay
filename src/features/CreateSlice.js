@@ -5,6 +5,8 @@ const initialState = {
   CamData: null,
   userCredentialsMsg: null,
   userDetails: null,
+  userEmail: null,
+  loading:true
 };
 
 const dataSlice = createSlice({
@@ -20,8 +22,15 @@ const dataSlice = createSlice({
     getUserCredentialMessage: (state, action) => {
       state.userCredentialsMsg = action.payload;
     },
+   
     getFetchUserData: (state, action) => {
       state.userDetails = action.payload;
+    },
+    setUserEmail: (state, action) => {
+      state.userEmail = action.payload;
+    },
+    setLoading: (state, action) => {
+      state.loading = action.payload;
     },
   },
 });
@@ -31,6 +40,8 @@ export const {
   getDataFromCamera,
   getUserCredentialMessage,
   getFetchUserData,
+  setUserEmail,
+  setLoading,
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

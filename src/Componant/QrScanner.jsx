@@ -14,7 +14,7 @@ import { QrReader } from "react-qr-reader";
 import { LuHardDriveUpload } from "react-icons/lu";
 import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataFromCamera, getDataGpay } from "../features/CreateSlice";
+import { getDataFromCamera, getDataGpay, getFetchUserData } from "../features/CreateSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -35,6 +35,7 @@ import { Box, CardActionArea, Slide, Snackbar } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import Cookies from "js-cookie";
 import AdComponent from "./Google Add/AddSense";
+import { getUserDetails } from "./actionCreator/actionCreators";
 function SlideTransition(props) {
   return <Slide {...props} direction="up" />;
 }
@@ -178,9 +179,12 @@ setUserLogMsg({
           currentDate: currentDate,
           ammount: exactamt,
           userAgreed: agreed,
-          paymentMethod:PaymentType
+          paymentMethod: PaymentType,
+          userEmail: userDetails.user.email,
+          userName: userDetails.user.firstName,
         };
 
+      
         dispatch(getDataGpay(requestData));
 
         const message = JSON.stringify(requestData);
@@ -235,7 +239,18 @@ setUserLogMsg({
       localStorage.setItem("paymentType", JSON.stringify(name));;
   };
 
-  console.log("us", userDetails);
+  useEffect(() => {
+    const getemail = localStorage.getItem("userEmail");
+    if (getemail) {
+      getUserDetails(getemail).then((res)=>{
+       dispatch(getFetchUserData(res));
+       console.log(res);
+      })
+    }
+
+  }, [])
+  
+
   return (
     <div className="h-full w-full">
       {/* <div className=" bg-[#1976d2] p-4 flex justify-center items-center ">
@@ -254,12 +269,12 @@ setUserLogMsg({
           //   display: !renderBtn ? "block" : "none",
           // }}
         >
-          <div className="col-sm-12 col-md-12 p-0">
+          <div className="col-sm-12 col-md-12 p-0 flex justify-center">
             {/* <div className="flex justify-center items-center p-2">
               <img className="rounded-md  " src={blueVideo} alt="" />
             </div> */}
-          </div>
           <AdComponent />
+          </div>
 
           <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
             <div className="row m-0 flex justify-center border border-gray-600">

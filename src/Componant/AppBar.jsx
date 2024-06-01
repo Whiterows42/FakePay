@@ -13,13 +13,14 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import { useSelector } from "react-redux";
 const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+  const userDetails = useSelector((state) => state.data.userDetails);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -36,7 +37,7 @@ function ResponsiveAppBar() {
   };
 
   return (
-    <AppBar style={{background:"black"}}  position="sticky">
+    <AppBar style={{ background: "black" }} position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <CurrencyRupeeIcon
@@ -46,7 +47,7 @@ function ResponsiveAppBar() {
             variant="h6"
             noWrap
             component="a"
-            // top={"/"}
+            // to={"/"}
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -111,21 +112,31 @@ function ResponsiveAppBar() {
               flexGrow: 1,
               fontFamily: "monospace",
               fontWeight: 700,
-              letterSpacing: ".3rem",
+              letterSpacing: "2px",
               color: "inherit",
               textDecoration: "none",
             }}
           >
             Fake Pay
           </Typography>
-          <Box
+
+          {/* <div className="flex w-full justify-end items-center font-bold">
+            <h1
+              style={{ letterSpacing: "5px", lineHeight: "2" }}
+              className="-tracking-tighter text-2xl"
+            >
+              {" "}
+              {userDetails && userDetails.user.firstName}
+            </h1>
+          </div> */}
+          {/* <Box
             sx={{
               flexGrow: 1,
               display: { xs: "none", md: "flex" },
               justifyContent: "end",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "end" }}>
+            <div style={{ display: "flex", justifyContent: "end", alignItems:"center" }}>
               {pages.map((page) => (
                 <Button
                   key={page}
@@ -135,9 +146,9 @@ function ResponsiveAppBar() {
                   {page}
                 </Button>
               ))}
+              <h1>{userDetails && userDetails.user.firstName}</h1>
             </div>
-          </Box>
-
+          </Box> */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton

@@ -16,12 +16,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { CheckUserApi, RegisterUserApi } from "../actionCreator/actionCreators";
 import { useDispatch } from "react-redux";
-import { getUserCredentialMessage } from "../../features/CreateSlice";
-import { data } from "autoprefixer";
+import { getUserCredentialMessage, setLoading } from "../../features/CreateSlice";
 
-function SlideTransition(props) {
-  return <Slide {...props} direction="up" />;
-}
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -40,14 +36,32 @@ const Signup = () => {
     confirmPassword: "",
   };
 
-  const validationSchema = Yup.object({
-    firstName: Yup.string().required("Required"),
-    lastName: Yup.string().required("Required"),
-    username: Yup.string().required("Required"),
-    email: Yup.string().email("Invalid email format").required("Required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
+  const validationSchema = Yup.object().shape({
+    firstName: Yup.string()
+      .trim()
+      .min(2)
+      .matches(/^[A-Za-z ]*$/, "special character not allowed")
       .required("Required"),
+    lastName: Yup.string()
+      .trim()
+      .min(2)
+      .matches(/^[A-Za-z ]*$/, "special character not allowed")
+      .required("Required"),
+    username: Yup.string().required("Required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .matches(
+        /^[a-z0-9](\.?[a-z0-9]){5,}@g(oogle)?mail\.com$/,
+        "invalid Gmail"
+      )
+      .required("Required"),
+    password: Yup.string()
+      .trim()
+      .min(6)
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-])[a-zA-Z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]{6,}$/,
+        "Enter Strong number"
+      ),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Required"),
@@ -88,11 +102,14 @@ const Signup = () => {
       setMessage("An error occurred during signup");
       setOpen(true);
     } finally {
+      dispatch(setLoading(false))
       setSubmitting(false);
+    
     }
   };
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
+
   const handleClickShowConfirmPassword = () =>
     setShowConfirmPassword(!showConfirmPassword);
 
@@ -104,53 +121,80 @@ const Signup = () => {
     setOpen(false);
   };
 
-  const renderTextField = (name, label, type, icon) => (
-    <Field name={name}>
-      {({ field, meta }) => (
-        <TextField
-          {...field}
-          className="rounded-sm"
-          id={name}
-          type={type}
-          label={label}
-          placeholder={`Enter ${label}`}
-          variant="outlined"
-          required
-          error={meta.touched && Boolean(meta.error)}
-          helperText={meta.touched && meta.error}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">{icon}</InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: "white",
-              },
-              "&:hover fieldset": {
-                borderColor: "white",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "white",
-              },
-              color: "white",
-            },
-            "& .MuiInputBase-input": {
-              color: "white",
-            },
-            "& .MuiInputLabel-root": {
-              color: "white",
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              color: "white",
-            },
-          }}
-          fullWidth
-        />
-      )}
-    </Field>
-  );
+ const renderTextField = (
+   name,
+   label,
+   type,
+   icon,
+   showPassword,
+   handleClickShowPassword
+ ) => (
+   <Field name={name}>
+     {({ field, meta }) => (
+       <TextField
+         {...field}
+         className="rounded-sm"
+         id={name}
+         type={type}
+         label={label}
+         placeholder={`Enter ${label}`}
+         variant="outlined"
+         required
+         error={meta.touched && Boolean(meta.error)}
+         helperText={meta.touched && meta.error}
+         InputProps={{
+           startAdornment: (
+             <InputAdornment position="start">{icon}</InputAdornment>
+           ),
+           ...(name === "password" && {
+             endAdornment: (
+               <InputAdornment position="end">
+                 <IconButton
+                   aria-label="toggle password visibility"
+                   onClick={handleClickShowPassword}
+                   onMouseDown={handleMouseDownPassword}
+                   edge="end"
+                 >
+                   {showPassword ? (
+                     <VisibilityOff style={{ color: "white" }} />
+                   ) : (
+                     <Visibility style={{ color: "white" }} />
+                   )}
+                 </IconButton>
+               </InputAdornment>
+             ),
+           }),
+         }}
+         sx={{
+           "& .MuiOutlinedInput-root": {
+             "& fieldset": {
+               borderColor: "white",
+             },
+             "&:hover fieldset": {
+               borderColor: "white",
+             },
+             "&.Mui-focused fieldset": {
+               borderColor: "white",
+             },
+             color: "white",
+           },
+           "& .MuiInputBase-input": {
+             color: "white",
+           },
+           "& .MuiInputLabel-root": {
+             color: "white",
+           },
+           "& .MuiInputLabel-root.Mui-focused": {
+             color: "white",
+           },
+         }}
+         fullWidth
+       />
+     )}
+   </Field>
+ );
+
+
 
   return (
     <div className="bg-black h-[100vh] flex justify-center flex-col items-center w-full relative">
@@ -162,9 +206,11 @@ const Signup = () => {
         {({ isSubmitting, isValid }) => (
           <Form className="flex justify-center flex-col gap-3 border p-10 rounded-lg border-white md:w-1/2">
             {isSubmitting && (
-              <div className="flex justify-center">
+              
+              <div className="flex justify-center h-[100vh] w-full">
                 <div class="text-center text-white">
                   <div class="spinner-border" role="status">
+                  
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -172,6 +218,7 @@ const Signup = () => {
             )}
             {!isSubmitting && (
               <div className="text-white gap-4 flex flex-col">
+                
                 <div className="flex mb-3 justify-center text-xl font-bold">
                   <h1 className="tracking-wider">User Signup</h1>
                 </div>
@@ -214,7 +261,9 @@ const Signup = () => {
                       "password",
                       "Password",
                       showPassword ? "text" : "password",
-                      <FaLock style={{ color: "white" }} />
+                      <FaLock style={{ color: "white" }} />,
+                      showPassword,
+                      handleClickShowPassword
                     )}
                   </div>
                   <div className="col-sm-12 mt-2 col-md-6">
@@ -225,6 +274,9 @@ const Signup = () => {
                       <FaLock style={{ color: "white" }} />
                     )}
                   </div>
+                </div>
+                <div>
+                  
                 </div>
               </div>
             )}
@@ -243,7 +295,7 @@ const Signup = () => {
 
       <div className="flex mt-3 justify-center items-center gap-3">
         <h1 className="text-white ">AllReady have account ?</h1>
-        <button onClick={()=> navigate("/") }>login</button>
+        <button onClick={() => navigate("/")}>login</button>
       </div>
       <Box sx={{ width: 500, position: "absolute" }}>
         <Snackbar
@@ -251,7 +303,6 @@ const Signup = () => {
           open={open}
           message={message}
           autoHideDuration={3000}
-          TransitionComponent={SlideTransition}
           onClose={handleCloseSnackbar}
         />
       </Box>
