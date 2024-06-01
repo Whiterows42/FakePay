@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { CircularProgress } from "@mui/material";
@@ -27,6 +27,20 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
+
+  setLoading(true)
+  useEffect(() => {
+      useEffect(() => {
+        // Simulate a loading delay (replace this with your actual data loading logic)
+        const timeoutId = setTimeout(() => {
+          dispatch(setLoading(false));
+        }, 4000);
+
+        // Cleanup the timeout if the component unmounts or data loading completes
+        return () => clearTimeout(timeoutId);
+      }, []);
+  }, [])
+  
   const initialValues = {
     firstName: "",
     lastName: "",

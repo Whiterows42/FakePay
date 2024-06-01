@@ -12,6 +12,10 @@ import notificationSound from "./google_pay.mp3"; // Import the audio file
 const Gpay = () => {
   const data = useSelector((state) => state.data.data);
   const navigate = useNavigate();
+  const [snakbarOmsg, setSetsnakbarOmsg] = useState({
+    open: false,
+    message: "",
+  });
 
   const [message, setMessage] = useState("");
   const [addData, setAddData] = useState([]);
@@ -78,7 +82,11 @@ const Gpay = () => {
       }
     } catch (error) {
       console.error("Error sharing screenshot:", error);
-      alert("Failed to share screenshot");
+      // alert("Failed to share screenshot");
+      setSetsnakbarOmsg({
+        open: true,
+        message: "Failed to share screenshot",
+      });
     } finally {
       setOpen(true);
       setMessage("Screenshot shared successfully!");
@@ -161,6 +169,15 @@ const Gpay = () => {
         style={{ display: "none" }}
         autoPlay
       />
+      <Box sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={snakbarOmsg.open}
+          message={snakbarOmsg.message}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+        />
+      </Box>
     </div>
   );
 };

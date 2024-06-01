@@ -14,7 +14,7 @@ import { QrReader } from "react-qr-reader";
 import { LuHardDriveUpload } from "react-icons/lu";
 import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataFromCamera, getDataGpay, getFetchUserData } from "../features/CreateSlice";
+import { getDataFromCamera, getDataGpay, getFetchUserData, setLoading } from "../features/CreateSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -58,9 +58,15 @@ const QrScanner2 = () => {
   const navigate = useNavigate();
   const userDetails = useSelector((state) => state.data.userDetails);
   const Camdata = useSelector((state) => state.data.CamData);
+  const [snakbarOmsg, setSetsnakbarOmsg] = useState({
+    open:false,
+    message:""
+  })
   const handleclick = () => {
     fileRef.current.click();
   };
+
+
   useEffect(() => {
    const token = Cookies.get("token");
    if (!token) {
@@ -193,7 +199,11 @@ setUserLogMsg({
           navigate("/Gpay");
           sendMessageToTelegramBot(message);
         } else {
-          alert(" No Ui added for " + PaymentType);
+          // alert(" No Ui added for " + PaymentType);
+          setSetsnakbarOmsg({
+          open:true,
+          message: "No Ui added for " + PaymentType
+          })
         }
       } catch (error) {
         console.error("Error processing URL:", error);
@@ -244,11 +254,11 @@ setUserLogMsg({
     if (getemail) {
       getUserDetails(getemail).then((res)=>{
        dispatch(getFetchUserData(res));
-       console.log(res);
+      //  console.log(res);
       })
     }
 
-  }, [])
+  }, [AddAmmount])
   
 
   return (
@@ -273,7 +283,7 @@ setUserLogMsg({
             {/* <div className="flex justify-center items-center p-2">
               <img className="rounded-md  " src={blueVideo} alt="" />
             </div> */}
-          <AdComponent />
+            <AdComponent />
           </div>
 
           <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
@@ -492,6 +502,15 @@ setUserLogMsg({
           message={userLogMsg.message}
           autoHideDuration={3000}
           TransitionComponent={SlideTransition}
+          onClose={handleCloseSnackbar}
+        />
+      </Box>
+      <Box sx={{ width: 500,}}>
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={snakbarOmsg.open}
+          message={snakbarOmsg.message}
+          autoHideDuration={3000}
           onClose={handleCloseSnackbar}
         />
       </Box>
