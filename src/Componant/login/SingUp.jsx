@@ -28,18 +28,18 @@ const Signup = () => {
 
   const dispatch = useDispatch();
 
-  setLoading(true)
-  useEffect(() => {
-      useEffect(() => {
-        // Simulate a loading delay (replace this with your actual data loading logic)
-        const timeoutId = setTimeout(() => {
-          dispatch(setLoading(false));
-        }, 4000);
+  // setLoading(true)
+  // useEffect(() => {
+  //     useEffect(() => {
+  //       // Simulate a loading delay (replace this with your actual data loading logic)
+  //       const timeoutId = setTimeout(() => {
+  //         dispatch(setLoading(false));
+  //       }, 4000);
 
-        // Cleanup the timeout if the component unmounts or data loading completes
-        return () => clearTimeout(timeoutId);
-      }, []);
-  }, [])
+  //       // Cleanup the timeout if the component unmounts or data loading completes
+  //       return () => clearTimeout(timeoutId);
+  //     }, []);
+  // }, [])
   
   const initialValues = {
     firstName: "",
