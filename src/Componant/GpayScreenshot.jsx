@@ -8,6 +8,7 @@ import html2canvas from "html2canvas";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import notificationSound from "./google_pay.mp3"; // Import the audio file
+import { Box } from "@mui/material";
 
 const Gpay = () => {
   const data = useSelector((state) => state.data.data);
@@ -169,7 +170,7 @@ const Gpay = () => {
         style={{ display: "none" }}
         autoPlay
       />
-      <Box sx={{ width: 500 }}>
+      <Box  sx={{ width: 500 }}>
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           open={snakbarOmsg.open}
