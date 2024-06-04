@@ -176,7 +176,6 @@ const Gpay = () => {
           open={snakbarOmsg.open}
           message={snakbarOmsg.message}
           autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
         />
       </Box>
     </div>
