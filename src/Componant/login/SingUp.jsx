@@ -16,7 +16,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { CheckUserApi, RegisterUserApi } from "../actionCreator/actionCreators";
 import { useDispatch } from "react-redux";
-import { getUserCredentialMessage, setLoading } from "../../features/CreateSlice";
+import { getUserCredentialMessage, hideSnackbar, setLoading } from "../../features/CreateSlice";
 
 
 const Signup = () => {
@@ -25,21 +25,10 @@ const Signup = () => {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+const snackbar = useSelector((state) => state.data.snakmessage);
   const dispatch = useDispatch();
 
-  // setLoading(true)
-  // useEffect(() => {
-  //     useEffect(() => {
-  //       // Simulate a loading delay (replace this with your actual data loading logic)
-  //       const timeoutId = setTimeout(() => {
-  //         dispatch(setLoading(false));
-  //       }, 4000);
-
-  //       // Cleanup the timeout if the component unmounts or data loading completes
-  //       return () => clearTimeout(timeoutId);
-  //     }, []);
-  // }, [])
+  // 
   
   const initialValues = {
     firstName: "",
@@ -84,8 +73,7 @@ const Signup = () => {
   const onSubmit = async (values, { setSubmitting, setFieldError }) => {
     try {
       // Check if user already exists
-      const checkUserResponse = await CheckUserApi(values.email);
-      console.log(checkUserResponse);
+      const checkUserResponse = await dispatch(CheckUserApi(values.email));
       if (checkUserResponse && checkUserResponse.data.success) {
         setFieldError("email", "This email is already taken");
         setMessage("This email is already taken");
@@ -109,7 +97,6 @@ const Signup = () => {
           setMessage(registerResponse.data.message || "An error occurred");
           setOpen(true);
         }
-        console.log("res", registerResponse);
       }
     } catch (error) {
       setFieldError("email", error.message || "An error occurred");
@@ -132,7 +119,7 @@ const Signup = () => {
   };
 
   const handleCloseSnackbar = () => {
-    setOpen(false);
+    dispatch(hideSnackbar());
   };
 
  const renderTextField = (
@@ -220,11 +207,9 @@ const Signup = () => {
         {({ isSubmitting, isValid }) => (
           <Form className="flex justify-center flex-col gap-3 border p-10 rounded-lg border-white md:w-1/2">
             {isSubmitting && (
-              
-              <div className="flex justify-center h-[100vh] w-full">
+              <div className="flex justify-center  w-full">
                 <div class="text-center text-white">
                   <div class="spinner-border" role="status">
-                  
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -232,7 +217,6 @@ const Signup = () => {
             )}
             {!isSubmitting && (
               <div className="text-white gap-4 flex flex-col">
-                
                 <div className="flex mb-3 justify-center text-xl font-bold">
                   <h1 className="tracking-wider">User Signup</h1>
                 </div>
@@ -289,9 +273,7 @@ const Signup = () => {
                     )}
                   </div>
                 </div>
-                <div>
-                  
-                </div>
+                <div></div>
               </div>
             )}
             {!isSubmitting && (
@@ -314,9 +296,9 @@ const Signup = () => {
       <Box sx={{ width: 500, position: "absolute" }}>
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          open={open}
-          message={message}
-          autoHideDuration={3000}
+          open={snackbar.open}
+          message={snackbar.message}
+          autoHideDuration={6000}
           onClose={handleCloseSnackbar}
         />
       </Box>

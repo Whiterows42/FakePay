@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 function OtpInput({ length = 6, onOtpSubmit = () => {}, reset, error , helperText }) {
   const [otp, setOtp] = useState(new Array(length).fill(""));
   const inputRefs = useRef([]);
+
+ const snackbar = useSelector((state) => state.data.snakmessage);
 
   useEffect(() => {
     if (inputRefs.current[0]) {
@@ -67,7 +70,7 @@ function OtpInput({ length = 6, onOtpSubmit = () => {}, reset, error , helperTex
           onClick={() => handleClick(index)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           className={`OtpInput w-10 ml-3 text-black cursor-text text-2xl font-bold text-center flex justify-center items-center h-[55px] ${
-            error ? "border-red-500 border-2" : ""
+            snackbar?.message === "Invalid OTP" ? "border-red-500 border-2" : ""
           }`}
         />
       ))}

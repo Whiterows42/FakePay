@@ -6,7 +6,11 @@ const initialState = {
   userCredentialsMsg: null,
   userDetails: null,
   userEmail: null,
-  loading:true
+  loading:true,
+  snakmessage:{
+    open:false,
+    message:""
+  }
 };
 
 const dataSlice = createSlice({
@@ -22,7 +26,7 @@ const dataSlice = createSlice({
     getUserCredentialMessage: (state, action) => {
       state.userCredentialsMsg = action.payload;
     },
-   
+
     getFetchUserData: (state, action) => {
       state.userDetails = action.payload;
     },
@@ -32,10 +36,24 @@ const dataSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
+    showSnackbar: (state, action) => {
+      state.snakmessage = {
+        open: true,
+        message: action.payload,
+      };
+    },
+    hideSnackbar: (state) => {
+      state.snakmessage = {
+        open: false,
+        message: "",
+      };
+    },
   },
 });
 
 export const {
+  showSnackbar,
+  hideSnackbar,
   getDataGpay,
   getDataFromCamera,
   getUserCredentialMessage,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LoginApi, VerifyOtpApi } from "../actionCreator/actionCreators";
 import {
   Box,
@@ -17,6 +17,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import OtpInput from "./OtpInput";
 import Cookies from "js-cookie";
+import { hideSnackbar } from "../../features/CreateSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -34,16 +35,9 @@ const Login = () => {
   const [otpError, setOtpError] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const snackbar = useSelector((state) => state.data.snakmessage);
 
-  // useEffect(() => {
-  //   const getemail = localStorage.getItem("userEmail");
-  //   if (getemail) {
-  //     setIsAuthenticated(true);
-  //     navigate("/home");
-  //     setMessage("User logged in successfully");
-  //   }
-  // }, []);
-
+  // useEffect to handle OTP countdown timer
   useEffect(() => {
     let countdown;
     if (otpSent && timer > 0) {
@@ -55,7 +49,7 @@ const Login = () => {
   }, [otpSent, timer]);
 
   const handleCloseSnackbar = () => {
-    setOpen(false);
+    dispatch(hideSnackbar());
   };
 
   const initialValues = {
@@ -78,62 +72,35 @@ const Login = () => {
   const onSubmit = (values, { setSubmitting, setFieldError }) => {
     setLoading(true);
     if (!otpSent) {
-      LoginApi(values.email, values.password)
+      dispatch(LoginApi(values.email, values.password))
         .then((response) => {
-          setMessage(response.data.message);
-          if (response.status === 200) {
-            setOpen(true);
+          if (response && response.status === 200) {
             setOtpSent(true);
             setEmail(values.email);
             setPassword(values.password);
             setTimer(60);
-            localStorage.setItem("userEmail", values.email); // Store user email in localStorage
+            localStorage.setItem("userEmail", values.email);
           } else {
             setFieldError(
               "email",
-              response.data.message || "An error occurred"
+              response?.data?.message || "An error occurred"
             );
-            setMessage(response.data.message || "Something went wrong");
-            setOpen(true);
           }
-        })
-        .catch((error) => {
-          console.log("Error response:", error.response);
-          setFieldError(
-            "email",
-            error.response?.data?.message || "An error occurred"
-          );
-          setMessage(error.response?.data?.message || error.message);
-          setOpen(true);
         })
         .finally(() => {
           setSubmitting(false);
           setLoading(false);
         });
     } else {
-      VerifyOtpApi(email, values.otp)
+      dispatch(VerifyOtpApi(email, values.otp))
         .then((response) => {
-          setMessage(response.data.message);
-          if (response.status === 200) {
-            setOpen(true);
+          if (response && response.status === 200) {
             Cookies.set("token", response.data.token, { expires: 1 });
             navigate("/home");
           } else {
             setOtpError(true);
-            setFieldError("otp", response.data.message || "Invalid OTP");
-            setMessage(response.data.message);
-            setOpen(true);
+            setFieldError("otp", response?.data?.message || "Invalid OTP");
           }
-        })
-        .catch((error) => {
-          console.log("Error response:", error.response);
-          setOtpError(true);
-          setFieldError(
-            "otp",
-            error.response?.data?.message || "An error occurred"
-          );
-          setMessage(error.response?.data?.message || error.message);
-          setOpen(true);
         })
         .finally(() => {
           setSubmitting(false);
@@ -146,16 +113,16 @@ const Login = () => {
     setResendLoading(true);
     if (email && password) {
       try {
-        const response = await LoginApi(email, password);
+        const response = await dispatch(LoginApi(email, password)); // Modified to use email and password directly
         if (response && response.status === 200) {
           setMessage("OTP resent successfully");
           setOpen(true);
           resetForm();
           setResetOtp(true);
           setTimeout(() => setResetOtp(false), 100); // Reset the OTP component
-          setTimer(60); // Reset the timer to 2 minutes
+          setTimer(60); // Reset the timer to 1 minute
         } else {
-          setMessage(response.data.message || "Failed to resend OTP");
+          setMessage(response?.data?.message || "Failed to resend OTP");
           setOpen(true);
         }
       } catch (error) {
@@ -166,6 +133,8 @@ const Login = () => {
       }
     }
   };
+
+  
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -182,14 +151,6 @@ const Login = () => {
       }
     );
   };
-
-  // if (authLoading) {
-  //   return (
-  //     <div className="bg-black h-[100vh] flex justify-center items-center w-full">
-  //       <CircularProgress color="inherit" />
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="bg-black h-[100vh] flex justify-center flex-col items-center w-full relative">
@@ -221,7 +182,9 @@ const Login = () => {
                           variant="outlined"
                           required
                           error={meta.touched && Boolean(meta.error)}
-                          helperText={meta.touched && errors.email}
+                          helperText={
+                            (meta.touched && errors.email) || snackbar?.message
+                          }
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -268,7 +231,9 @@ const Login = () => {
                           variant="outlined"
                           required
                           error={meta.touched && Boolean(meta.error)}
-                          helperText={meta.touched && meta.error}
+                          helperText={
+                            (meta.touched && meta.error) || snackbar?.message
+                          }
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -348,13 +313,13 @@ const Login = () => {
                 }}
               >
                 {loading ? (
-                  <button className=" bg-white text-black py-2 px-4 rounded">
+                  <button className="bg-white text-black py-2 px-4 rounded">
                     <CircularProgress size={24} color="inherit" />
                   </button>
                 ) : (
                   <button
                     type="submit"
-                    className=" bg-white text-black py-2 px-4 rounded"
+                    className="bg-white text-black py-2 px-4 rounded"
                     disabled={isSubmitting || !isValid}
                   >
                     {otpSent ? "Verify OTP" : "Login"}
@@ -385,10 +350,10 @@ const Login = () => {
       </div>
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        open={open}
+        open={snackbar.open}
+        message={snackbar.message}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        message={message ? message : "Something went wrong"}
       />
     </div>
   );

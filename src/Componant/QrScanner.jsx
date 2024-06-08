@@ -71,8 +71,10 @@ useEffect(() => {
   if (getemail) {
     getUserDetails(getemail).then((res) => {
       dispatch(getFetchUserData(res));
-      //  console.log(res);
     });
+  }
+  else{
+    navigate("/")
   }
 }, []);
 
