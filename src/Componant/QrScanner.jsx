@@ -66,13 +66,17 @@ const QrScanner2 = () => {
     fileRef.current.click();
   };
 
+useEffect(() => {
+  const getemail = localStorage.getItem("userEmail");
+  if (getemail) {
+    getUserDetails(getemail).then((res) => {
+      dispatch(getFetchUserData(res));
+      //  console.log(res);
+    });
+  }
+}, []);
 
-  useEffect(() => {
-   const token = Cookies.get("token");
-   if (!token) {
-    navigate("/")
-   }
-  }, [])
+ 
   
   useEffect(() => {
     if (Camdata) {
@@ -186,8 +190,8 @@ setUserLogMsg({
           ammount: exactamt,
           userAgreed: agreed,
           paymentMethod: PaymentType,
-          userEmail: userDetails.user.email,
-          userName: userDetails.user.firstName,
+          userEmail: userDetails?.user.email,
+          userName: userDetails?.user.firstName,
         };
 
       
@@ -249,16 +253,7 @@ setUserLogMsg({
       localStorage.setItem("paymentType", JSON.stringify(name));;
   };
 
-  useEffect(() => {
-    const getemail = localStorage.getItem("userEmail");
-    if (getemail) {
-      getUserDetails(getemail).then((res)=>{
-       dispatch(getFetchUserData(res));
-      //  console.log(res);
-      })
-    }
 
-  }, [AddAmmount])
   
 
   return (

@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
-import {
-  LoginApi,
-  VerifyOtpApi,
-  fetchUserData,
-  getUserDetails,
-} from "../actionCreator/actionCreators";
-import { getFetchUserData, setUserEmail } from "../../features/CreateSlice";
+import { LoginApi, VerifyOtpApi } from "../actionCreator/actionCreators";
 import {
   Box,
   IconButton,
@@ -38,16 +32,17 @@ const Login = () => {
   const [resendLoading, setResendLoading] = useState(false);
   const [timer, setTimer] = useState(0);
   const [otpError, setOtpError] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
- 
-  useEffect(() => {
-     const getemail = localStorage.getItem("userEmail");
-     if (getemail) {
-      navigate("/home")
-      setMessage("user logged in successfully")
-     }
-  }, [])
-  
+  // useEffect(() => {
+  //   const getemail = localStorage.getItem("userEmail");
+  //   if (getemail) {
+  //     setIsAuthenticated(true);
+  //     navigate("/home");
+  //     setMessage("User logged in successfully");
+  //   }
+  // }, []);
 
   useEffect(() => {
     let countdown;
@@ -118,13 +113,11 @@ const Login = () => {
     } else {
       VerifyOtpApi(email, values.otp)
         .then((response) => {
-          console.log("Success response:", response);
           setMessage(response.data.message);
           if (response.status === 200) {
             setOpen(true);
             Cookies.set("token", response.data.token, { expires: 1 });
             navigate("/home");
-            return fetchUserData();
           } else {
             setOtpError(true);
             setFieldError("otp", response.data.message || "Invalid OTP");
@@ -190,192 +183,202 @@ const Login = () => {
     );
   };
 
+  // if (authLoading) {
+  //   return (
+  //     <div className="bg-black h-[100vh] flex justify-center items-center w-full">
+  //       <CircularProgress color="inherit" />
+  //     </div>
+  //   );
+  // }
+
   return (
     <div className="bg-black h-[100vh] flex justify-center flex-col items-center w-full relative">
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={onSubmit}
-      >
-        {({ isSubmitting, isValid, resetForm, errors, touched }) => (
-          <Form className="flex justify-center flex-col gap-3 border p-10 rounded-lg border-white md:w-1/2">
-            <div className="text-white">
-              <div className="flex mb-3 justify-center text-xl font-bold">
-                <h1 className="tracking-wider">
-                  {otpSent ? "Enter OTP" : "User Login"}
-                </h1>
+      {!isAuthenticated && (
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+        >
+          {({ isSubmitting, isValid, resetForm, errors, touched }) => (
+            <Form className="flex justify-center flex-col gap-3 border p-10 rounded-lg border-white md:w-1/2">
+              <div className="text-white">
+                <div className="flex mb-3 justify-center text-xl font-bold">
+                  <h1 className="tracking-wider">
+                    {otpSent ? "Enter OTP" : "User Login"}
+                  </h1>
+                </div>
+                {!otpSent && (
+                  <>
+                    <Field name="email">
+                      {({ field, meta }) => (
+                        <TextField
+                          {...field}
+                          className="rounded-sm"
+                          id="outlined-basic"
+                          type="email"
+                          label="Email"
+                          placeholder="Enter Email"
+                          variant="outlined"
+                          required
+                          error={meta.touched && Boolean(meta.error)}
+                          helperText={meta.touched && errors.email}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <MdMarkEmailRead style={{ color: "white" }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "white",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "white",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "white",
+                              },
+                              color: "white",
+                            },
+                            "& .MuiInputBase-input": {
+                              color: "white",
+                            },
+                            "& .MuiInputLabel-root": {
+                              color: "white",
+                            },
+                            "& .MuiInputLabel-root.Mui-focused": {
+                              color: "white",
+                            },
+                          }}
+                          fullWidth
+                        />
+                      )}
+                    </Field>
+                    <Field name="password">
+                      {({ field, meta }) => (
+                        <TextField
+                          {...field}
+                          className="rounded-sm mt-3"
+                          id="outlined-basic"
+                          type={showPassword ? "text" : "password"}
+                          label="Password"
+                          placeholder="Enter Password"
+                          variant="outlined"
+                          required
+                          error={meta.touched && Boolean(meta.error)}
+                          helperText={meta.touched && meta.error}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <FaLock style={{ color: "white" }} />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  aria-label="toggle password visibility"
+                                  onClick={handleClickShowPassword}
+                                  onMouseDown={handleMouseDownPassword}
+                                  edge="end"
+                                >
+                                  {showPassword ? (
+                                    <VisibilityOff style={{ color: "white" }} />
+                                  ) : (
+                                    <Visibility style={{ color: "white" }} />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "white",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "white",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "white",
+                              },
+                              color: "white",
+                            },
+                            "& .MuiInputBase-input": {
+                              color: "white",
+                            },
+                            "& .MuiInputLabel-root": {
+                              color: "white",
+                            },
+                            "& .MuiInputLabel-root.Mui-focused": {
+                              color: "white",
+                            },
+                          }}
+                          fullWidth
+                        />
+                      )}
+                    </Field>
+                  </>
+                )}
+                {otpSent && (
+                  <Field name="otp">
+                    {({ field, form }) => (
+                      <OtpInput
+                        {...field}
+                        error={errors.otp}
+                        touched={touched.otp}
+                        helperText={touched && errors.otp ? errors.otp : ""}
+                        resetOtp={resetOtp}
+                        onOtpSubmit={(otp) => {
+                          form.setFieldValue("otp", otp, true);
+                          handleOtpSubmit(otp);
+                        }}
+                      />
+                    )}
+                  </Field>
+                )}
               </div>
-              {!otpSent && (
-                <>
-                  <Field name="email">
-                    {({ field, meta }) => (
-                      <TextField
-                        {...field}
-                        className="rounded-sm"
-                        id="outlined-basic"
-                        type="email"
-                        label="Email"
-                        placeholder="Enter Email"
-                        variant="outlined"
-                        required
-                        error={meta.touched && Boolean(meta.error)}
-                        helperText={meta.touched && errors.email}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <MdMarkEmailRead style={{ color: "white" }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "white",
-                            },
-                            "&:hover fieldset": {
-                              borderColor: "white",
-                            },
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
-                            color: "white",
-                          },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
-                          "& .MuiInputLabel-root": {
-                            color: "white",
-                          },
-                          "& .MuiInputLabel-root.Mui-focused": {
-                            color: "white",
-                          },
-                        }}
-                        fullWidth
-                      />
-                    )}
-                  </Field>
-                  <Field name="password">
-                    {({ field, meta }) => (
-                      <TextField
-                        {...field}
-                        className="rounded-sm mt-3"
-                        id="outlined-basic"
-                        type={showPassword ? "text" : "password"}
-                        label="Password"
-                        placeholder="Enter Password"
-                        variant="outlined"
-                        required
-                        error={meta.touched && Boolean(meta.error)}
-                        helperText={meta.touched && meta.error}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FaLock style={{ color: "white" }} />
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                aria-label="toggle password visibility"
-                                onClick={handleClickShowPassword}
-                                onMouseDown={handleMouseDownPassword}
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff style={{ color: "white" }} />
-                                ) : (
-                                  <Visibility style={{ color: "white" }} />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "white",
-                            },
-                            "&:hover fieldset": {
-                              borderColor: "white",
-                            },
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
-                            color: "white",
-                          },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
-                          "& .MuiInputLabel-root": {
-                            color: "white",
-                          },
-                          "& .MuiInputLabel-root.Mui-focused": {
-                            color: "white",
-                          },
-                        }}
-                        fullWidth
-                      />
-                    )}
-                  </Field>
-                </>
-              )}
-              {otpSent && (
-                <Field name="otp">
-                  {({ field, form }) => (
-                    <OtpInput
-                      {...field}
-                      error={errors.otp}
-                      touched={touched.otp}
-                      helperText={touched && errors.otp ? errors.otp : ""}
-                      resetOtp={resetOtp}
-                      onOtpSubmit={(otp) => {
-                        form.setFieldValue("otp", otp, true);
-                        handleOtpSubmit(otp);
-                      }}
-                    />
-                  )}
-                </Field>
-              )}
-            </div>
-            <Box
-              sx={{
-                position: "relative",
-                display: "flex",
-                justifyContent: "center",
-                marginTop: 2,
-              }}
-            >
-              {loading ? (
-                <button className=" bg-white text-black py-2 px-4 rounded">
-                  <CircularProgress size={24} color="inherit" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className=" bg-white text-black py-2 px-4 rounded"
-                  disabled={isSubmitting || !isValid}
-                >
-                  {otpSent ? "Verify OTP" : "Login"}
-                </button>
-              )}
-              {otpSent && (
-                <button
-                  type="button"
-                  className="bg-blue-500 text-white py-2 px-4 rounded ml-4"
-                  onClick={() => resendOtp(resetForm)}
-                  disabled={resendLoading || timer > 0}
-                >
-                  {resendLoading ? (
+              <Box
+                sx={{
+                  position: "relative",
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 2,
+                }}
+              >
+                {loading ? (
+                  <button className=" bg-white text-black py-2 px-4 rounded">
                     <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    `Resend OTP ${timer > 0 ? `(${timer}s)` : ""}`
-                  )}
-                </button>
-              )}
-            </Box>
-          </Form>
-        )}
-      </Formik>
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className=" bg-white text-black py-2 px-4 rounded"
+                    disabled={isSubmitting || !isValid}
+                  >
+                    {otpSent ? "Verify OTP" : "Login"}
+                  </button>
+                )}
+                {otpSent && (
+                  <button
+                    type="button"
+                    className="bg-blue-500 text-white py-2 px-4 rounded ml-4"
+                    onClick={() => resendOtp(resetForm)}
+                    disabled={resendLoading || timer > 0}
+                  >
+                    {resendLoading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      `Resend OTP ${timer > 0 ? `(${timer}s)` : ""}`
+                    )}
+                  </button>
+                )}
+              </Box>
+            </Form>
+          )}
+        </Formik>
+      )}
       <div className="flex mt-4 justify-center items-center gap-2">
         <h1 className="text-white">Don't have an account?</h1>
         <button onClick={() => navigate("/signup")}>REGISTER HERE</button>
