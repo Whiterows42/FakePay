@@ -53,10 +53,10 @@ const snackbar = useSelector((state) => state.data.snakmessage);
     username: Yup.string().required("Required"),
     email: Yup.string()
       .email("Invalid email format")
-      .matches(
-        /^[a-z0-9](\.?[a-z0-9]){5,}@g(oogle)?mail\.com$/,
-        "invalid Gmail"
-      )
+      // .matches(
+      //   /^[a-z0-9](\.?[a-z0-9]){5,}@g(oogle)?mail\.com$/,
+      //   "invalid Gmail"
+      // )
       .required("Required"),
     password: Yup.string()
       .trim()
@@ -80,13 +80,13 @@ const snackbar = useSelector((state) => state.data.snakmessage);
         setOpen(true);
       } else {
         // Register the user
-        const registerResponse = await RegisterUserApi(
+        const registerResponse = await dispatch( RegisterUserApi(
           values.email,
           values.password,
           values.username,
           values.firstName,
           values.lastName
-        );
+        ));
         if (registerResponse && registerResponse.data.success) {
           setMessage("Signup successful!");
           localStorage.setItem("token", registerResponse.data.token);
