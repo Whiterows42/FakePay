@@ -10,7 +10,15 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "commands": {
+      "install": "npm install --legacy-peer-deps"
+    }
+  }
 }
