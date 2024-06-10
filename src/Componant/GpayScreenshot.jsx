@@ -27,9 +27,7 @@ const Gpay = () => {
     navigate("/home");
   };
   useEffect(() => {
-    if (!data) {
-      navigate("/home")
-    }
+    
     setAddData(data);
   
   }, [data]);
@@ -98,6 +96,13 @@ const Gpay = () => {
     }
   };
 
+  useEffect(() => {
+   
+    if (addData.length <= 0) {
+      navigate("/home");
+    }
+  }, [])
+  
   return (
     <div>
       {addData && addData.length > 0 ? (
