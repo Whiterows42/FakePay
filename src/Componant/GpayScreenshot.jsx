@@ -96,12 +96,12 @@ const Gpay = () => {
     }
   };
 
-  useEffect(() => {
+  // useEffect(() => {
    
-    if (addData.length <= 0) {
-      navigate("/home");
-    }
-  }, [])
+  //   if (addData.length <= 0) {
+  //     navigate("/home");
+  //   }
+  // }, [])
   
   return (
     <div>
