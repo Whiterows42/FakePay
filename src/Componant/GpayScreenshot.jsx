@@ -27,7 +27,11 @@ const Gpay = () => {
     navigate("/home");
   };
   useEffect(() => {
+    if (!data) {
+      navigate("/home")
+    }
     setAddData(data);
+  
   }, [data]);
 
   useEffect(() => {
