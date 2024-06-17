@@ -48,13 +48,14 @@ function App() {
 
   return (
     <>
+    
       <ResponsiveAppBar />
       {isLoading || isLoading1 ? (
         <Loder />
       ) : (
           <Outlet />
       )}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
