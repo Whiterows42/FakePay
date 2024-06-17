@@ -111,6 +111,10 @@ setUserLogMsg({
   success:false,
   message:" "
 })
+setSetsnakbarOmsg({
+  open:false,
+  message:""
+})
  };
   const handleChange = async (e) => {
     const file = e.target.files[0];
@@ -215,7 +219,11 @@ setUserLogMsg({
         console.error("Error processing URL:", error);
       }
     } else {
-      alert("Invalid Qr Code:", upiString);
+      setSetsnakbarOmsg({
+        open:true,
+        message:`Invalid QR Code ${upiString}`
+      })
+      // alert("Invalid Qr Code:", upiString);
     }
   };
 
@@ -286,9 +294,11 @@ setUserLogMsg({
           <div className={`col-md-12 md:flex justify-center p-0 h-1/2 `}>
             <div className="row m-0 flex justify-center border border-gray-600">
               {card.map((value, index) => (
-                <div className=" col-md-3 flex justify-center mb-6 mt-4   ">
+                <div
+                  className=" col-md-3 flex justify-center mb-6 mt-4   "
+                  key={value.id}
+                >
                   <Card
-                    key={value.id}
                     sx={{ maxWidth: 500, padding: 1, display: "flex" }}
                     className="flex justify-center items-center Paycard  gap-3"
                   >
@@ -321,12 +331,12 @@ setUserLogMsg({
         </div>
       </div>
       <div style={{ display: renderBtn ? "block" : "none" }}>
-        <div className="row h-100 w-100 flex justify-center">
+        <div className="row m-0 h-100 w-100 flex justify-center mt-3 items-center">
           <div className="  col-md-4 h-25  flex justify-center ">
-            <img src={qrScan} alt="" style={{ height: "500px" }} />
+            {/* <img src={qrScan} alt="" style={{ height: "500px" }} /> */}
           </div>
           <div className={`mb-5 col-md-4 col-sm-12 h-full `}>
-            <div className="flex justify-center p-5  items-center flex-col gap-4">
+            <div className="flex justify-center p-5 border border-white rounded-lg items-center flex-col gap-4">
               <div className=" mt-5">
                 <Link
                   to={"/scan"}
@@ -502,12 +512,12 @@ setUserLogMsg({
           onClose={handleCloseSnackbar}
         />
       </Box>
-      <Box sx={{ width: 500,}}>
+      <Box sx={{ width: 500 }}>
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           open={snakbarOmsg.open}
           message={snakbarOmsg.message}
-          autoHideDuration={3000}
+          autoHideDuration={6000}
           onClose={handleCloseSnackbar}
         />
       </Box>

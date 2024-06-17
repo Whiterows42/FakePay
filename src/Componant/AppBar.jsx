@@ -151,7 +151,7 @@ function ResponsiveAppBar() {
               </div>
               </Box> */}
                 <div style={{ zIndex:"2"}} className="flex  justify-end">
-              <h1 className="capitalize tracking-wider  md:text-left">{userDetails && userDetails?.user?.firstName}</h1>
+              <h1 className="capitalize tracking-wider  md:text-left text-xl">{userDetails && userDetails?.user?.firstName}</h1>
 
                 </div>
           <Box sx={{ flexGrow: 0 }}>
