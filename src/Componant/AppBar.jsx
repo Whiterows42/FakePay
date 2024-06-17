@@ -56,6 +56,8 @@ function ResponsiveAppBar() {
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
+              margin:"0 2px",
+              zIndex:"10",
             }}
           >
             Fake Pay
@@ -146,9 +148,12 @@ function ResponsiveAppBar() {
                   {page}
                 </Button>
               ))}
-              <h1>{userDetails && userDetails.user.firstName}</h1>
-            </div>
-          </Box> */}
+              </div>
+              </Box> */}
+                <div style={{ zIndex:"2"}} className="flex  justify-end">
+              <h1 className="capitalize tracking-wider  md:text-left">{userDetails && userDetails?.user?.firstName}</h1>
+
+                </div>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton
