@@ -53,10 +53,10 @@ const snackbar = useSelector((state) => state.data.snakmessage);
     username: Yup.string().required("Required"),
     email: Yup.string()
       .email("Invalid email format")
-      // .matches(
-      //   /^[a-z0-9](\.?[a-z0-9]){5,}@g(oogle)?mail\.com$/,
-      //   "invalid Gmail"
-      // )
+      .matches(
+        /^[a-z0-9](\.?[a-z0-9]){5,}@g(oogle)?mail\.com$/,
+        "invalid Gmail"
+      )
       .required("Required"),
     password: Yup.string()
       .trim()
