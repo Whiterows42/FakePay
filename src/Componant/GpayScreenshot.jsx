@@ -22,14 +22,14 @@ const Gpay = () => {
   const [addData, setAddData] = useState([]);
   const screenshotRef = useRef(null);
   const audioRef = useRef(null);
-  
+  const containerRef = useRef(null);
+
   const handleBack = () => {
     navigate("/home");
   };
+
   useEffect(() => {
-    
     setAddData(data);
-  
   }, [data]);
 
   useEffect(() => {
@@ -95,16 +95,14 @@ const Gpay = () => {
       setMessage("Screenshot shared successfully!");
     }
   };
+    useEffect(() => {
+      if (containerRef.current) {
+        containerRef.current.requestFullscreen();
+      }
+    }, []);
 
-  // useEffect(() => {
-   
-  //   if (addData.length <= 0) {
-  //     navigate("/home");
-  //   }
-  // }, [])
-  
   return (
-    <div>
+    <div ref={containerRef}>
       {addData && addData.length > 0 ? (
         addData.map((value, index) => (
           <div
@@ -179,7 +177,7 @@ const Gpay = () => {
         style={{ display: "none" }}
         autoPlay
       />
-      <Box  sx={{ width: 500 }}>
+      <Box sx={{ width: 500 }}>
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           open={snakbarOmsg.open}
