@@ -5,7 +5,7 @@ import Footer from "./Componant/Footer";
 import Loder from "./Componant/Loader/Loder";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "./features/CreateSlice";
-
+import { Analytics } from "@vercel/analytics/react";
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -48,14 +48,10 @@ function App() {
 
   return (
     <>
-    
       <ResponsiveAppBar />
-      {isLoading || isLoading1 ? (
-        <Loder />
-      ) : (
-          <Outlet />
-      )}
+      {isLoading || isLoading1 ? <Loder /> : <Outlet />}
       {/* <Footer /> */}
+      <Analytics />
     </>
   );
 }
