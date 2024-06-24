@@ -49,7 +49,7 @@ const Gpay = () => {
     if (audioRef.current) {
       audioRef.current.play();
     }
-  }, []); // Play audio when the component mounts
+  }, []); 
 
   const [open, setOpen] = useState(false);
 
@@ -102,7 +102,7 @@ const Gpay = () => {
     }, []);
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="no-select">
       {addData && addData.length > 0 ? (
         addData.map((value, index) => (
           <div
